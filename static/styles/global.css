@@ -1,0 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+
+:root {
+    --tw-bg-opacity: 1;
+    --tw-text-opacity: 1;
+  }
+  
+@media (prefers-color-scheme: dark) {
+:root {
+    --tw-bg-opacity: 1;
+    --tw-text-opacity: 1;
+}
+}
+
+body {
+    color: rgb(255 255 255 / var(--tw-text-opacity));
+    background-color: rgb(15 23 42 / var(--tw-bg-opacity));
+}

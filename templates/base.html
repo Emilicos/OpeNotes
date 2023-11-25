@@ -1,0 +1,23 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %} OpeNotes {% endblock title %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{% static 'styles/global.css' %}" />
+    {% block styles %}{% endblock styles %}
+  </head>
+  <body class="flex flex-col">
+    <nav class="min-h-12 w-full flex justify-between font-bold p-8 gap-8 border-b dark:border-slate-200/10"> 
+      <h1 class="text-slate-900 font-extrabold tracking-tight text-center dark:text-white cursor-pointer"> OpeNotes </h1>
+      <ul class = "flex gap-8 cursor-pointer">
+        <li><a class="hover:text-sky-500 dark:hover:text-sky-400 text-[#e5e7eb]" href="/docs/installation">Mata Kuliah</a></li>        
+        <li><a class="hover:text-sky-500 dark:hover:text-sky-400 text-[#e5e7eb]" href="/docs/installation">Favorit Saya</a></li>        
+      </ul>
+    </nav>
+    <div id="app" class="w-full min-h-screen overflow-y-auto">{% block content %} {% endblock content %}</div>
+  </body>
+</html>
