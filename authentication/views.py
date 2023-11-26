@@ -1,9 +1,9 @@
 import os
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
-from requests import Response
 from rest_framework import status
+from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.conf import settings
 
@@ -26,10 +26,15 @@ class LoginView(APIView):
             rawdata = response.data.decode('utf-8')
             data = xmltodict.parse(rawdata)
             data = data.get('cas:serviceResponse').get('cas:authenticationSuccess')
-            
+
             print(data)
-            if(data.get('cas:user') == None):
-                return Response({"error": "Invalid ticket"}, status=status.HTTP_400_BAD_REQUEST)
+            if(not data):
+                return Response(
+                    {
+                        "error": "Invalid Ticket"
+                    }, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
             
             user, created = User.objects.get_or_create(
                 username=data.get('cas:user'), 
@@ -75,6 +80,20 @@ class LoginView(APIView):
                 }, 
                 status=status.HTTP_400_BAD_REQUEST
             )
+        except Exception as e:
+            print(e)
+            return Response(
+                {
+                    "error": "Operation Failed"
+                }, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+            
+class LogoutView(APIView):
+    def get(self, request):
+        try:
+            logout(request)
+            return HttpResponseRedirect("/")
         except Exception as e:
             print(e)
             return Response(
