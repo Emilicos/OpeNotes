@@ -126,3 +126,6 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+SSO_UI_ORG_DETAIL_LANG=os.getenv("SSO_UI_ORG_DETAIL_LANG")
+SSO_UI_ORG_DETAIL_FILE_PATH="authentication/static/orgcode.json"
