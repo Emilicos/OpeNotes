@@ -16,9 +16,9 @@ Including another URLconf
 """
 from django.urls import path
 
-from course.views import CourseListView
+from course.views import CourseDetailView, CourseListView
 
 urlpatterns = [
-    path("course/", CourseListView.as_view()),
-    path("course/<str:id>/", CourseListView.as_view()),
+    path("", CourseListView.as_view()),
+    path("<str:id>/", CourseDetailView.as_view()),
 ]

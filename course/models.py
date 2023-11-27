@@ -7,7 +7,6 @@ class Course(models.Model):
     credit = models.IntegerField(default = 0)
     description = models.TextField(default = "")
     semester = models.IntegerField(default = 0)
-    year = models.IntegerField(default = 0)
     
     def __str__(self):
         return self.name

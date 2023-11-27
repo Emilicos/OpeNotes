@@ -11,7 +11,7 @@ def export_vars(request):
         },
         {
             "name": "Mata Kuliah",
-            "url": "/courses"
+            "url": "/course/"
         },
     ]
 
