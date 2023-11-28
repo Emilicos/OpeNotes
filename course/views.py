@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from course.forms import CourseForm
 
 from course.models import Course
 from course.serializers import CourseSerializer
@@ -12,9 +13,10 @@ from course.serializers import CourseSerializer
 class CourseListView(APIView):
     permission_classes = []
     def get(self, request):
-        courses = Course.objects.all()
+        form = CourseForm()
+        courses = Course.objects.prefetch_related("prerequisites").all()
         serializer = CourseSerializer(courses, many=True)
-        return render(request, "list.html", {"courses": serializer.data})
+        return render(request, "list.html", {"courses": serializer.data, "form": form})
     
     def post(self, request):
         self.permission_classes = [IsAdminUser]
