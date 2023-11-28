@@ -10,4 +10,4 @@ class Laporan(models.Model):
     status = models.BooleanField()
 
     def __str__(self):
-        return f"Laporan {self.id} - {self.pelapor.nama}"
+        return f"Laporan {self.id}"

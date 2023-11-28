@@ -7,6 +7,8 @@ from course.models import Course
 class Notes(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    
-    def __str__(self):
+    title = models.CharField(max_length=255, default="")
+    description = models.TextField(default="")
+
+    def str(self):
         return self.title
