@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.db import models
 
 from course.models import Course
+from cloudinary.models import CloudinaryField
 
 # Create your models here.
 class Notes(models.Model):
@@ -11,7 +12,12 @@ class Notes(models.Model):
     body = models.TextField()
     created_on = models.DateTimeField(default=timezone.now)
     parent = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
-    
+    photo = CloudinaryField(resource_type="auto",
+                            unique_filename=True,
+                            folder="openotes/photos", 
+                            allowed_formats=["jpg", "jpeg", "png"],
+                            blank = True,
+                            null = True)
     
     @property
     def children(self):
