@@ -7,6 +7,7 @@ class Course(models.Model):
     credit = models.IntegerField(default = 0)
     description = models.TextField(default = "")
     semester = models.IntegerField(default = 0)
-    
+    prerequisites = models.ManyToManyField('self', symmetrical=False, blank=True)
+
     def __str__(self):
         return self.name

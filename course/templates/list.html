@@ -2,25 +2,159 @@
 {% load static %} 
 
 {% block styles %}
+<style>
+    .form input[type="text"], .form input[type="number"], .form textarea, .form select {
+        background-color: #334155;
+        border: solid 1px rgb(203 213 225);
+        color: #fff; /* White text color */
+        padding: 0.75em 1em;
+        border-radius: 0.5em;
+    }
+
+    .form p {
+        display: flex;
+        flex-direction: column;
+        row-gap: 1em;
+        font-weight: bold;
+    }
+</style>
+
 {% endblock styles %}
 
 {% block content %}
-    <div class="grid grid-cols-1 gap-6 lg:gap-8 sm:grid-cols-2 lg:grid-cols-3 max-h-[33rem] overflow-hidden">
-    {% for course in courses %}
-        <figure class="relative flex flex-col-reverse bg-slate-50 rounded-lg p-6 dark:bg-slate-800 dark:highlight-white/5 font-bold">
-            <blockquote class="mt-3 text-slate-700 dark:text-slate-300">
-                <span class="inline-block bg-green-200 rounded-full px-3 py-1 text-sm font-bold text-slate-700 mr-2 mb-2">{{course.credit}} SKS</span>                
-                <p>{{course.description}}</p>
-            </blockquote>
-            <figcaption class="flex items-center space-x-4">
-            <div class="flex-auto"><div class="text-base text-slate-900 font-semibold dark:text-slate-300">
-                <a href="/course/{{course.id}}/" tabindex="0">
-                <span class="absolute inset-0"></span> {{course.code}} </a>
+    <div class = "flex flex-col gap-y-8">
+        <div class="flex items-center gap-x-4">
+            <i class="fa-solid fa-magnifying-glass absolute ml-5 text-white pointer-events-none mt-1"></i>
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="Cari mata kuliah disini..."
+              class="w-full py-3 pl-12 pr-4 text-white placeholder-white bg-slate-700 border-2 border-slate-300 rounded-xl"
+            />
+        </div>
+        <div class = "w-full text-right flex justify-end">
+            <button type="button" class="bg-green-500 flex shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-green-600 dark:hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-300 dark:focus:ring-offset-slate-900 dark:focus:ring-green-700" data-bs-toggle="modal" data-bs-target="#createModal">Create Mata Kuliah</button>
+        </div>
+        <div class="grid grid-cols-1 gap-6 lg:gap-8 sm:grid-cols-2 lg:grid-cols-3 overflow-hidden" id="courseContainer">
+        {% for course in courses %}
+            <figure class="relative flex flex-col bg-slate-50 rounded-lg p-6 dark:bg-slate-800 dark:highlight-white/5 font-bold">
+                <a href="/course/{{course.id}}/" class="relative">
+                    <figcaption class="flex items-center space-x-4">
+                        <div class="flex-auto">
+                            <div class="text-base text-slate-900 font-semibold dark:text-slate-300">
+                                <span class="absolute inset-0 pointer-events-none"></span> {{course.code}}
+                            </div>
+                        
+                            <div class="mt-0.5">{{course.name}}</div>
+                        </div>
+                    </figcaption>
+                    <blockquote class="mt-3 text-slate-700 dark:text-slate-300">
+                        <span class="inline-block bg-green-200 rounded-full px-3 py-1 text-sm font-bold text-slate-700 mr-2 mb-2">{{course.credit}} SKS</span>                
+                        <p>{{course.description}}</p>
+
+                        {% if course.prerequisites|length %} 
+                            <p class="text-green-300 mt-3 flex gap-x-2 flex-wrap">
+                                Mata kuliah prasyarat: 
+                                {% for prerequisite in course.prerequisites %} 
+                                    {% if forloop.last %}
+                                        <span> {{prerequisite.name}} </span> 
+                                    {% else %}
+                                        <span> {{prerequisite.name}}, </span> 
+                                    {% endif %}
+                                {% endfor %}
+                            </p> 
+                        {% endif %}
+                    </blockquote>
+                </a>
+                <i class="fa-solid fa-gear absolute right-5 cursor-pointer hover:text-slate-300" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <button class="dropdown-item cursor-pointer" onclick="" data-bs-toggle="modal" data-bs-target="#updatemodal">Update</button>
+                    <button class="dropdown-item cursor-pointer" onclick="">Delete</button>
+                </div>
+            </figure>
+            <div class="modal fade" id="updatemodal" tabindex="-1" role="dialog" aria-labelledby="updatemodalTitle" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                  <div class="modal-content bg-[#272B52]">
+                    <div class="modal-header border-b-0">
+                      <h5 class="font-bold" id="exampleModalLongTitle">Update Mata Kuliah</h5>
+                      <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body flex flex-col form gap-y-6">
+                      
+                    </div>
+                    <div class="modal-footer border-t-0">
+                      <button type="button" class="bg-rose-500 flex-auto shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-rose-600 dark:hover:bg-rose-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-300 dark:focus:ring-offset-slate-900 dark:focus:ring-rose-700" data-dismiss="modal">Close</button>
+                      <button type="button" class="bg-green-500 flex-auto shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-green-600 dark:hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-300 dark:focus:ring-offset-slate-900 dark:focus:ring-green-700">Save changes</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+        {% endfor %}
+        </div>
+
+        <form method="post" class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-labelledby="createModalTitle" aria-hidden="true">
+            {% csrf_token %}
+            <div class="modal-dialog modal-dialog-centered" role="document">
+              <div class="modal-content bg-[#272B52]">
+                <div class="modal-header border-b-0">
+                  <h5 class="font-bold" id="exampleModalLongTitle">Update Mata Kuliah</h5>
+                  <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body flex flex-col form gap-y-6">
+                  {{form.as_p}}
+                </div>
+                <div class="modal-footer border-t-0">
+                  <button type="button" class="bg-rose-500 flex-auto shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-rose-600 dark:hover:bg-rose-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-300 dark:focus:ring-offset-slate-900 dark:focus:ring-rose-700" data-dismiss="modal">Batal</button>
+                  <button type="submit" id = "button_create" class="bg-green-500 flex-auto shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-green-600 dark:hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-300 dark:focus:ring-offset-slate-900 dark:focus:ring-green-700">Simpan</button>
+                </div>
+              </div>
             </div>
-            
-            <div class="mt-0.5">{{course.name}}</div></div>
-            </figcaption>
-        </figure>
-    {% endfor %}
+          </div>
     </div>
+
+    <script>
+        function addCourse() {
+            console.log(new FormData(document.querySelector('#createModal')))
+            fetch(`/course/`, {
+                method: "POST",
+                body: new FormData(document.querySelector('#createModal'))
+            }).then(res => {
+                console.log("res", res)
+            })
+    
+            document.getElementById("form").reset()
+            return false
+        }
+
+        document.getElementById("button_create").onclick = addCourse
+
+        // JavaScript code for filtering courses
+        document.addEventListener("DOMContentLoaded", function() {
+            const searchInput = document.getElementById("searchInput");
+            const courseItems = document.querySelectorAll("#courseContainer figure");
+
+            searchInput.addEventListener("input", function() {
+                const searchText = searchInput.value.trim().toLowerCase();
+
+                courseItems.forEach(function(courseItem) {
+                    var courseText = courseItem.textContent.toLowerCase();
+                    const index = courseText.lastIndexOf("mata kuliah prasyarat")
+
+                    if (index !== -1) {
+                        courseText = courseText.substring(0, index);
+                    }
+
+                    if (courseText.includes(searchText)) {
+                        courseItem.style.display = "flex";
+                    } else {
+                        courseItem.style.display = "none";
+                    }
+                });
+            });
+        });
+    </script>
 {% endblock content %}
