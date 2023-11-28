@@ -22,11 +22,15 @@
 {% endblock styles %}
 
 {% block content %}
-    <div class = "flex flex-col gap-y-8">
+    <div aria-live="polite" id = "toast-placement" aria-atomic="true" style="position: relative" class="font-bold z-[50]">
+            
+    </div>
+    <div class = "flex flex-col gap-y-8 z-[10]">
         <div class="flex items-center gap-x-4">
             <i class="fa-solid fa-magnifying-glass absolute ml-5 text-white pointer-events-none mt-1"></i>
             <input
               type="text"
+              name="searchInput"
               id="searchInput"
               placeholder="Cari mata kuliah disini..."
               class="w-full py-3 pl-12 pr-4 text-white placeholder-white bg-slate-700 border-2 border-slate-300 rounded-xl"
@@ -44,7 +48,7 @@
             <div class="modal-dialog modal-dialog-centered" role="document">
               <div class="modal-content bg-[#272B52]">
                 <div class="modal-header border-b-0">
-                  <h5 class="font-bold" id="exampleModalLongTitle">Update Mata Kuliah</h5>
+                  <h5 class="font-bold" id="exampleModalLongTitle">Create Mata Kuliah</h5>
                   <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                   </button>
@@ -62,144 +66,210 @@
     </div>
 
     <script>
-        $(document).ready(function() {
-            async function getCourses() {
-                return await fetch(`/course/?rest=true/`).then((res) => res.json())
-            }
-
-            function generateToast(status, message) {
-                const toast = 
-                `
-                    <div aria-live="polite" aria-atomic="true" style="position: relative; min-height: 200px;">
-                        <div class="toast" style="position: absolute; top: 0; right: 0;">
-                        <div class="toast-header">
-                            <strong class="mr-auto">${status}</strong>
-                            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="toast-body">
-                            ${message}
-                        </div>
-                        </div>
-                    </div> 
-                `
-                return toast 
-            }
-
-            function getPrerequisites(course) {
-                if (course.prerequisites && course.prerequisites.length > 0) {
-                    let prerequisitesText = '<p class="text-green-300 mt-3 flex gap-x-2 flex-wrap">Mata kuliah prasyarat: ';
-                    
-                    for (let i = 0; i < course.prerequisites.length; i++) {
-                        if (i === course.prerequisites.length - 1) {
-                            prerequisitesText += `<span>${course.prerequisites[i].name}</span>`;
-                        } else {
-                            prerequisitesText += `<span>${course.prerequisites[i].name}, </span>`;
-                        }
-                    }
-                    
-                    prerequisitesText += '</p>';
-                    return prerequisitesText;
+        function getCookie(c_name){
+            if (document.cookie.length > 0)
+            {
+                c_start = document.cookie.indexOf(c_name + "=");
+                if (c_start != -1)
+                {
+                    c_start = c_start + c_name.length + 1;
+                    c_end = document.cookie.indexOf(";", c_start);
+                    if (c_end == -1) c_end = document.cookie.length;
+                    return unescape(document.cookie.substring(c_start,c_end));
                 }
-                return ""
-            } 
-            async function refreshCourses() {
-                const courses = await getCourses()
-                document.getElementById("courseContainer").innerHTML = ""
-                let DOM = ""
+            }
+            return "";
+        }
 
-                courses.forEach((course) => {
-                    DOM += `
-                    <figure class="relative flex flex-col bg-slate-50 rounded-lg p-6 dark:bg-slate-800 dark:highlight-white/5 font-bold">
-                        <a href="/course/${course.id}/" class="relative">
-                            <figcaption class="flex items-center space-x-4">
-                                <div class="flex-auto">
-                                    <div class="text-base text-slate-900 font-semibold dark:text-slate-300">
-                                        <span class="absolute inset-0 pointer-events-none"></span> ${course.code}
-                                    </div>
-                                
-                                    <div class="mt-0.5">${course.name}</div>
+        async function getCourses() {
+            return await fetch(`/course/?rest=true/`).then((res) => res.json())
+        }
+
+        function generateToast(status, message) {
+            const toast = 
+            `
+                <div class="toast bg-[#272B52] mx-8 z-50" style="position: fixed; top: 60px; right: 0;">
+                    <div class="toast-header bg-[#272B52] ${status === "Success" ? 'text-green-500' : 'text-rose-500'}">
+                        <strong class="mr-auto ${status === "Success" ? 'text-green-500' : 'text-rose-500'} font-bold text-xl">${status}</strong>
+                        <button type="button" class="ml-2 mb-1 close" data-bs-dismiss="toast" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                </div>
+            `
+            return toast 
+        }
+
+        function getPrerequisites(course) {
+            if (course.prerequisites && course.prerequisites.length > 0) {
+                let prerequisitesText = '<p class="text-green-300 mt-3 flex gap-x-2 flex-wrap">Mata kuliah prasyarat: ';
+                
+                for (let i = 0; i < course.prerequisites.length; i++) {
+                    if (i === course.prerequisites.length - 1) {
+                        prerequisitesText += `<span>${course.prerequisites[i].name}</span>`;
+                    } else {
+                        prerequisitesText += `<span>${course.prerequisites[i].name}, </span>`;
+                    }
+                }
+                
+                prerequisitesText += '</p>';
+                return prerequisitesText;
+            }
+            return ""
+        } 
+        async function refreshCourses() {
+            const courses = await getCourses()
+            document.getElementById("courseContainer").innerHTML = ""
+            let DOM = ""
+
+            courses.forEach((course) => {
+                DOM += `
+                <figure class="relative flex flex-col bg-slate-50 rounded-lg p-6 dark:bg-slate-800 dark:highlight-white/5 font-bold">
+                    <a href="/course/${course.id}/" class="relative">
+                        <figcaption class="flex items-center space-x-4">
+                            <div class="flex-auto">
+                                <div class="text-base text-slate-900 font-semibold dark:text-slate-300">
+                                    <span class="absolute inset-0 pointer-events-none"></span> ${course.code}
                                 </div>
-                            </figcaption>
-                            <blockquote class="mt-3 text-slate-700 dark:text-slate-300">
-                                <span class="inline-block bg-green-200 rounded-full px-3 py-1 text-sm font-bold text-slate-700 mr-2 mb-2">${course.credit} SKS</span>                
-                                <p>${course.description}</p>
-        
-                                ${getPrerequisites(course)}
-                            </blockquote>
-                        </a>
-                        <i class="fa-solid fa-gear absolute right-5 cursor-pointer hover:text-slate-300" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
-                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                            <button class="dropdown-item cursor-pointer" onclick="" data-bs-toggle="modal" data-bs-target="#updatemodal">Update</button>
-                            <button class="dropdown-item cursor-pointer" onclick="">Delete</button>
-                        </div>
-                    </figure>
-                    <form class="modal fade" id="updatemodal" tabindex="-1" role="dialog" aria-labelledby="updatemodalTitle" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered" role="document">
-                        <div class="modal-content bg-[#272B52]">
-                            <div class="modal-header border-b-0">
-                            <h5 class="font-bold" id="exampleModalLongTitle">Update Mata Kuliah</h5>
-                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                            </div>
-                            <div class="modal-body flex flex-col form gap-y-6">
                             
+                                <div class="mt-0.5">${course.name}</div>
                             </div>
-                            <div class="modal-footer border-t-0">
-                            <button type="button" class="bg-rose-500 flex-auto shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-rose-600 dark:hover:bg-rose-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-300 dark:focus:ring-offset-slate-900 dark:focus:ring-rose-700" data-dismiss="modal">Close</button>
-                            <button type="button" class="bg-green-500 flex-auto shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-green-600 dark:hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-300 dark:focus:ring-offset-slate-900 dark:focus:ring-green-700">Save changes</button>
-                            </div>
+                        </figcaption>
+                        <blockquote class="mt-3 text-slate-700 dark:text-slate-300">
+                            <span class="inline-block bg-green-200 rounded-full px-3 py-1 text-sm font-bold text-slate-700 mr-2 mb-2">${course.credit} SKS</span>                
+                            <p>${course.description}</p>
+    
+                            ${getPrerequisites(course)}
+                        </blockquote>
+                    </a>
+                    <i class="fa-solid fa-gear absolute right-5 cursor-pointer hover:text-slate-300" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <button class="dropdown-item cursor-pointer" onclick="" data-bs-toggle="modal" data-bs-target="#updatemodal">Update</button>
+                        <button class="dropdown-item cursor-pointer" onclick="" data-bs-toggle="modal" data-bs-target="#deleteModal-${course.id}">Delete</button>
+                    </div>
+                </figure>
+                <form class="modal fade" id="updatemodal" tabindex="-1" role="dialog" aria-labelledby="updatemodalTitle" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content bg-[#272B52]">
+                        <div class="modal-header border-b-0">
+                        <h5 class="font-bold" id="exampleModalLongTitle">Update Mata Kuliah</h5>
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                         </div>
+                        <div class="modal-body flex flex-col form gap-y-6">
+                        
                         </div>
-                    </form>
-                    `
-                })
-                
-                document.getElementById("courseContainer").innerHTML = DOM
-            }
-            async function addCourse() {
-                fetch(`/course/`, {
-                    method: "POST",
-                    body: new FormData(document.querySelector('#createModal'))
-                }).then(async () => {
-                    refreshCourses()
-                })
-                
-                $("#createModal").modal('hide');
-                document.getElementById("createModal").reset()
-                
-                return false
-            }
+                        <div class="modal-footer border-t-0">
+                        <button type="button" class="bg-rose-500 flex-auto shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-rose-600 dark:hover:bg-rose-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-300 dark:focus:ring-offset-slate-900 dark:focus:ring-rose-700" data-dismiss="modal">Close</button>
+                        <button type="button" class="bg-green-500 flex-auto shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-green-600 dark:hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-300 dark:focus:ring-offset-slate-900 dark:focus:ring-green-700">Save changes</button>
+                        </div>
+                    </div>
+                    </div>
+                </form>
+                <form class="modal fade" method="delete" onsubmit="return false;" id="deleteModal-${course.id}" tabindex="-1" role="dialog" aria-labelledby="deletemodalTitle" aria-hidden="true">
+                    {% csrf_token %}
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content bg-[#272B52]">
+                        <div class="modal-header border-b-0">
+                        <h5 class="font-bold" id="exampleModalLongTitle">Delete Mata Kuliah</h5>
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        </div>
+                        <div class="modal-body flex flex-col form gap-y-6">
+                        Apakah kamu yakin ingin menghapus mata kuliah ini?
+                        </div>
+                        <div class="modal-footer border-t-0">
+                        <button type="button" class="bg-rose-500 flex-auto shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-rose-600 dark:hover:bg-rose-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-300 dark:focus:ring-offset-slate-900 dark:focus:ring-rose-700" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="bg-green-500 flex-auto shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-green-600 dark:hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-300 dark:focus:ring-offset-slate-900 dark:focus:ring-green-700" onclick="deleteCourse(${course.id})">Yakin</button>
+                        </div>
+                    </div>
+                    </div>
+                </form>
+                `
+            })
+            
+            document.getElementById("courseContainer").innerHTML = DOM
+        }
 
-            document.getElementById("button_create").onclick = addCourse
+        function callToast(status, message) {
+            $('.toast').toast('hide')
+            document.getElementById("toast-placement").innerHTML = ""
+            const toast = generateToast(status, message)
+            document.getElementById("toast-placement").innerHTML = toast
+            $('.toast').toast('show')
+        }
 
-            // JavaScript code for filtering courses
-            document.addEventListener("DOMContentLoaded", function() {
-                const searchInput = document.getElementById("searchInput");
-                const courseItems = document.querySelectorAll("#courseContainer figure");
+        function hideModal(modalId) {
+            $(`#${modalId}`).modal('hide');
+            $('body').removeClass('modal-open');
+            $('.modal-backdrop').remove();      
+            document.getElementById(modalId)?.reset()
+        }
 
-                searchInput.addEventListener("input", function() {
-                    const searchText = searchInput.value.trim().toLowerCase();
+        async function addCourse() {
+            fetch(`/course/`, {
+                method: "POST",
+                body: new FormData(document.querySelector('#createModal'))
+            }).then(async () => {
+                await refreshCourses()
+                callToast("Success", "Berhasil menambahkan mata kuliah")
+                hideModal("createModal")
+            }).catch((error) => {
+                console.log(error)
+                callToast("Error", "Sistem gagal menyimpan mata kuliah")
+            })
+            
+            return false
+        }
 
-                    courseItems.forEach(function(courseItem) {
-                        var courseText = courseItem.textContent.toLowerCase();
-                        const index = courseText.lastIndexOf("mata kuliah prasyarat")
+        document.getElementById("button_create").onclick = addCourse;
 
-                        if (index !== -1) {
-                            courseText = courseText.substring(0, index);
-                        }
+        async function deleteCourse(id) {
+            fetch(`/course/${id}/`, {
+                method: "DELETE",
+                headers: { "X-CSRFToken": getCookie("csrftoken") },
+            }).then(async () => {
+                await refreshCourses()
+                callToast("Success", "Berhasil menghapus mata kuliah")
+                hideModal(`deleteModal-${id}`)
+            }).catch((error) => {
+                console.log(error)
+                callToast("Error", "Sistem gagal menghapus mata kuliah")
+            })
+        }
+        
+        // JavaScript code for filtering courses
+        let searchInput = document.querySelector("#searchInput");
+        searchInput.addEventListener("input", function() {
+            const searchInput = document.getElementById("searchInput");
+            const courseItems = document.querySelectorAll("#courseContainer figure");
 
-                        if (courseText.includes(searchText)) {
-                            courseItem.style.display = "flex";
-                        } else {
-                            courseItem.style.display = "none";
-                        }
-                    });
+            searchInput.addEventListener("input", function() {
+                const searchText = searchInput.value.trim().toLowerCase();
+
+                courseItems.forEach(function(courseItem) {
+                    var courseText = courseItem.textContent.toLowerCase();
+                    const index = courseText.lastIndexOf("mata kuliah prasyarat")
+
+                    if (index !== -1) {
+                        courseText = courseText.substring(0, index);
+                    }
+
+                    if (courseText.includes(searchText)) {
+                        courseItem.style.display = "flex";
+                    } else {
+                        courseItem.style.display = "none";
+                    }
                 });
             });
-
+        });
+        
+        $(document).ready(function() {
             refreshCourses()
         });
     </script>
