@@ -3,4 +3,4 @@ from .models import Laporan
 
 @admin.register(Laporan)
 class LaporanAdmin(admin.ModelAdmin):
-    list_display = ['id', 'pelapor', 'terlapor', 'alasan', 'status']
+    list_display = ['id', 'pelapor', 'terlapor', 'alasan', 'reviewed']

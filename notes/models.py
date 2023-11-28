@@ -10,5 +10,5 @@ class Notes(models.Model):
     title = models.CharField(max_length=255, default="")
     description = models.TextField(default="")
 
-    def str(self):
+    def __str__(self):
         return self.title

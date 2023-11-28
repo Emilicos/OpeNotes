@@ -1,0 +1,40 @@
+{% extends 'base.html' %} 
+{% load static %} 
+
+{% block styles %}
+{% endblock styles %}
+
+{% block content %}
+
+<div class="max-w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+  <h5 class="mb-2 text-lg font-bold tracking-tight text-gray-900 dark:text-white">ID Laporan: {{ laporan.id }}</h5>
+  <h5 class="mb-2 text-lg font-bold tracking-tight text-gray-900 dark:text-white">Mahasiswa Pelapor: {{ laporan.pelapor }}</h5>
+  <p class="mb-3 font-normal text-gray-700 dark:text-gray-400">Alasan: {{ laporan.alasan }}</p>
+  <a href="/report/" class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+    Lihat Notes yang dilaporkan
+    <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+    </svg>
+  </a>
+
+  <!-- "Tandai sebagai valid" SVG -->
+  <a href="/report/valid/{{ laporan.id }}" class="ms-1 inline-flex items-center px-3 py-2 text-sm font-medium text-center text-green-700 bg-green-200 rounded-lg hover:bg-green-300 focus:ring-4 focus:outline-none focus:ring-green-300 dark:text-green-100 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
+    Tandai sebagai valid
+    <svg class="w-4 h-4 ms-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+    </svg>
+  </a>
+
+  <!-- "Tandai sebagai invalid" SVG -->
+  <a href="/report/invalid/{{ laporan.id }}" class="ms-1 inline-flex items-center px-3 py-2 text-sm font-medium text-center text-red-700 bg-red-200 rounded-lg hover:bg-red-300 focus:ring-4 focus:outline-none focus:ring-red-300 dark:text-red-100 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
+    Tandai sebagai invalid
+    <svg class="w-4 h-4 ms-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+    </svg>
+  </a>
+</div>
+
+
+
+
+{% endblock content %}
