@@ -12,6 +12,7 @@ class Notes(models.Model):
     created_on = models.DateTimeField(default=timezone.now)
     parent = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
     
+    
     @property
     def children(self):
         return Notes.objects.filter(parent=self).order_by('-created_on').all()
