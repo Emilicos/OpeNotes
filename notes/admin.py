@@ -9,5 +9,5 @@ class NotesModelAdmin(admin.ModelAdmin):
     def get_user(self, obj):
         return obj.user.get_full_name()
     get_user.short_description = "Name"
-
+    
 admin.site.register(Notes, NotesModelAdmin)
