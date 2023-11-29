@@ -1,4 +1,4 @@
-from django.http import Http404, HttpResponseForbidden
+from django.http import Http404, HttpResponseForbidden, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from rest_framework import status
 from rest_framework.permissions import IsAdminUser
@@ -29,8 +29,7 @@ class NotesDetailView(APIView):
         notes = self.get_object(id)
         if notes.user != request.user:
             return HttpResponseForbidden("Anda tidak boleh menghapus Notes ini")
-        course_id = notes.course.pk
 
         notes.delete()
 
-        return redirect(f"/course/{course_id}")
+        return HttpResponse("BANGGGGG INI DMN")

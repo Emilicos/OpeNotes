@@ -30,9 +30,11 @@
     <button type="button" class="bg-orange-500 flex shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-orange-600 dark:hover:bg-orange-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-300 dark:focus:ring-offset-slate-900 dark:focus:ring-orange-700" data-bs-toggle="modal" data-bs-target="#reportModal">Report Notes</button>
 </div>
 
+{% if request.user == notes.user %}
 <div class = "w-full text-right flex justify-end">
   <button type="button" class="bg-rose-500 flex shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-rose-600 dark:hover:bg-rose-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-300 dark:focus:ring-offset-slate-900 dark:focus:ring-green-700" data-bs-toggle="modal" data-bs-target="#deleteModal">Delete Notes</button>
 </div>
+{% endif %}
   
 <form method="post" onsubmit="return false;" class="modal fade" id="reportModal" tabindex="-1" role="dialog" aria-labelledby="reportModalTitle" aria-hidden="true">
     {% csrf_token %}
@@ -107,7 +109,10 @@
             method: "POST",
             body: new FormData(document.querySelector('#reportModal'))
         }).then(res => {
+          if(res.ok == true)
             callToast("Success", "Berhasil mengirim report")
+          else
+            callToast("Error", "Sistem gagal menyimpan report")
         }).catch((error) => {
             console.log(error)
             callToast("Error", "Sistem gagal menyimpan report")
@@ -125,11 +130,17 @@
             method: "DELETE",
             headers: { "X-CSRFToken": getCookie("csrftoken") },
         }).then(res => {
+          if(res.ok == true){
             callToast("Success", "Berhasil menghapus Notes")
             console.log(res)
             var link = document.createElement("a");
-            link.href = res.url;
+            link.href = `/course/{{ notes.course.id }}`;
+            console.log(link.href)
             link.click();
+          }
+          else{
+            callToast("Error", "Sistem gagal menghapus Notes")
+          }
         }).catch((error) => {
             console.log(error)
             callToast("Error", "Sistem gagal menghapus Notes")
