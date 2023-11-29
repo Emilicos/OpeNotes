@@ -19,7 +19,11 @@ class CourseListView(APIView):
         serializer = CourseSerializer(courses, many=True)
         
         if(rest):
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response({
+                "courses": serializer.data,
+                "prerequisites": CourseSerializer(Course.objects.prefetch_related("prerequisites").all(), many=True).data,
+                "form": form.as_p()
+            }, status=status.HTTP_200_OK)
         return render(request, "list.html", {"courses": serializer.data, "form": form})
     
     def post(self, request):
@@ -58,6 +62,15 @@ class CourseDetailView(APIView):
         serializer = CourseSerializer(course, data=request.data)
         if serializer.is_valid():
             serializer.save()
+            prerequisites_data = []
+            prerequisites = request.data.getlist('prerequisites')
+            for prerequisite in prerequisites:
+                try:
+                    pre_course = Course.objects.get(pk=prerequisite)
+                    prerequisites_data.append(pre_course)
+                    course.prerequisites.set(prerequisites_data)
+                except Course.DoesNotExist:
+                    raise Http404()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
