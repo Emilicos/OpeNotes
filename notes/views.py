@@ -1,9 +1,10 @@
-from django.http import Http404
+from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import render, redirect
 from rest_framework import status
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 
 from notes.models import Notes
 
@@ -23,3 +24,13 @@ class NotesDetailView(APIView):
             'notes' : notes
         }
         return render(request, "notes_detail.html", context)
+    
+    def delete(self, request, id):
+        notes = self.get_object(id)
+        if notes.user != request.user:
+            return HttpResponseForbidden("Anda tidak boleh menghapus Notes ini")
+        course_id = notes.course.pk
+
+        notes.delete()
+
+        return redirect(f"/course/{course_id}")
