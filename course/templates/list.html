@@ -310,9 +310,11 @@
                 courseItems.forEach(function(courseItem) {
                     var courseText = courseItem.textContent.toLowerCase();
                     const index = courseText.lastIndexOf("mata kuliah prasyarat")
-
                     if (index !== -1) {
                         courseText = courseText.substring(0, index);
+                    } else {
+                        const blockquoteIndex = courseText.lastIndexOf("updatedelete");
+                        courseText = courseText.substring(0, blockquoteIndex);
                     }
 
                     if (courseText.includes(searchText)) {
