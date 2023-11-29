@@ -143,7 +143,10 @@
             const { courses, prerequisites, form } = response
 
             document.getElementById("courseContainer").innerHTML = "";
-            document.getElementById("modalContentCreate").innerHTML = form;
+            
+            if(admin) {
+                document.getElementById("modalContentCreate").innerHTML = form;
+            }
 
             let DOM = ""
             courses.forEach((course) => {
@@ -314,7 +317,11 @@
                         courseText = courseText.substring(0, index);
                     } else {
                         const blockquoteIndex = courseText.lastIndexOf("updatedelete");
-                        courseText = courseText.substring(0, blockquoteIndex);
+                        if(blockquoteIndex !== -1) {
+                            courseText = courseText.substring(0, blockquoteIndex);
+                        } else {
+                            courseText = courseText.substring(0, courseText.length - 1);
+                        }
                     }
 
                     if (courseText.includes(searchText)) {
