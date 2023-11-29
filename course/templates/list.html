@@ -22,6 +22,7 @@
 {% endblock styles %}
 
 {% block content %}
+    {{ request.user.is_staff|json_script:"admin" }}
     <div aria-live="polite" id = "toast-placement" aria-atomic="true" style="position: relative" class="font-bold z-[50]">
             
     </div>
@@ -36,36 +37,44 @@
               class="w-full py-3 pl-12 pr-4 text-white placeholder-white bg-slate-700 border-2 border-slate-300 rounded-xl"
             />
         </div>
-        <div class = "w-full text-right flex justify-end">
-            <button type="button" class="bg-green-500 flex shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-green-600 dark:hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-300 dark:focus:ring-offset-slate-900 dark:focus:ring-green-700" data-bs-toggle="modal" data-bs-target="#createModal">Create Mata Kuliah</button>
-        </div>
+
+        {% if request.user.is_staff %}
+            <div class = "w-full text-right flex justify-end">
+                <button type="button" class="bg-green-500 flex shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-green-600 dark:hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-300 dark:focus:ring-offset-slate-900 dark:focus:ring-green-700" data-bs-toggle="modal" data-bs-target="#createModal">Create Mata Kuliah</button>
+            </div>
+        {% endif %}
+
         <div class="grid grid-cols-1 gap-6 lg:gap-8 sm:grid-cols-2 lg:grid-cols-3 overflow-hidden" id="courseContainer">
         
         </div>
 
-        <form method="post" onsubmit="return false;" class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-labelledby="createModalTitle" aria-hidden="true">
-            {% csrf_token %}
-            <div class="modal-dialog modal-dialog-centered" role="document">
-              <div class="modal-content bg-[#272B52]">
-                <div class="modal-header border-b-0">
-                  <h5 class="font-bold" id="exampleModalLongTitle">Create Mata Kuliah</h5>
-                  <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                  </button>
+        {% if request.user.is_staff %}
+            <form method="post" onsubmit="return false;" class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-labelledby="createModalTitle" aria-hidden="true">
+                {% csrf_token %}
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content bg-[#272B52]">
+                    <div class="modal-header border-b-0">
+                    <h5 class="font-bold" id="exampleModalLongTitle">Create Mata Kuliah</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    </div>
+                    <div class="modal-body flex flex-col form gap-y-6" id = "modalContentCreate">
+                    {{form.as_p}}
+                    </div>
+                    <div class="modal-footer border-t-0">
+                    <button type="button" class="bg-rose-500 flex-auto shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-rose-600 dark:hover:bg-rose-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-300 dark:focus:ring-offset-slate-900 dark:focus:ring-rose-700" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" id = "button_create" class="bg-green-500 flex-auto shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-green-600 dark:hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-300 dark:focus:ring-offset-slate-900 dark:focus:ring-green-700" onclick="addCourse()">Simpan</button>
+                    </div>
                 </div>
-                <div class="modal-body flex flex-col form gap-y-6">
-                  {{form.as_p}}
                 </div>
-                <div class="modal-footer border-t-0">
-                  <button type="button" class="bg-rose-500 flex-auto shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-rose-600 dark:hover:bg-rose-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-300 dark:focus:ring-offset-slate-900 dark:focus:ring-rose-700" data-bs-dismiss="modal">Batal</button>
-                  <button type="submit" id = "button_create" class="bg-green-500 flex-auto shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-green-600 dark:hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-300 dark:focus:ring-offset-slate-900 dark:focus:ring-green-700">Simpan</button>
-                </div>
-              </div>
-            </div>
-        </form>
+            </form>
+        {% endif %}
     </div>
 
     <script>
+        var admin = JSON.parse(document.getElementById('admin').textContent);
+        
         function getCookie(c_name){
             if (document.cookie.length > 0)
             {
@@ -120,11 +129,23 @@
             }
             return ""
         } 
-        async function refreshCourses() {
-            const courses = await getCourses()
-            document.getElementById("courseContainer").innerHTML = ""
-            let DOM = ""
 
+        function getPrerequisitesOptions(prerequisites, selectedPrerequisites) {
+            let prerequisitesOptions = "";
+            prerequisites.forEach((prerequisite) => {
+                prerequisitesOptions += `<option value="${prerequisite.id}" ${selectedPrerequisites.includes(prerequisite.id) ? "selected" : ""}>${prerequisite.name}</option>`
+            })
+            return prerequisitesOptions
+        }
+
+        async function refreshCourses() {
+            const response = await getCourses()
+            const { courses, prerequisites, form } = response
+
+            document.getElementById("courseContainer").innerHTML = "";
+            document.getElementById("modalContentCreate").innerHTML = form;
+
+            let DOM = ""
             courses.forEach((course) => {
                 DOM += `
                 <figure class="relative flex flex-col bg-slate-50 rounded-lg p-6 dark:bg-slate-800 dark:highlight-white/5 font-bold">
@@ -145,13 +166,9 @@
                             ${getPrerequisites(course)}
                         </blockquote>
                     </a>
-                    <i class="fa-solid fa-gear absolute right-5 cursor-pointer hover:text-slate-300" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
-                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <button class="dropdown-item cursor-pointer" onclick="" data-bs-toggle="modal" data-bs-target="#updatemodal">Update</button>
-                        <button class="dropdown-item cursor-pointer" onclick="" data-bs-toggle="modal" data-bs-target="#deleteModal-${course.id}">Delete</button>
-                    </div>
+                    ${admin ? `<i class="fa-solid fa-gear absolute right-5 cursor-pointer hover:text-slate-300" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i><div class="dropdown-menu" aria-labelledby="dropdownMenuButton"><button class="dropdown-item cursor-pointer" onclick="" data-bs-toggle="modal" data-bs-target="#updateModal-${course.id}">Update</button><button class="dropdown-item cursor-pointer" onclick="" data-bs-toggle="modal" data-bs-target="#deleteModal-${course.id}">Delete</button></div>` : ''}
                 </figure>
-                <form class="modal fade" id="updatemodal" tabindex="-1" role="dialog" aria-labelledby="updatemodalTitle" aria-hidden="true">
+                <form class="modal fade" method="put" onsubmit="return false;" id="updateModal-${course.id}" tabindex="-1" role="dialog" aria-labelledby="updatemodalTitle" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered" role="document">
                     <div class="modal-content bg-[#272B52]">
                         <div class="modal-header border-b-0">
@@ -160,12 +177,38 @@
                             <span aria-hidden="true">&times;</span>
                         </button>
                         </div>
-                        <div class="modal-body flex flex-col form gap-y-6">
-                        
+                        <div class="modal-body flex flex-col form gap-y-6" id="modalContentUpdate-${course.id}">
+                            <p>
+                              <label for="id_name">Name:</label>
+                              <input type="text" name="name" maxlength="100" required="" id="id_name" value = "${course.name}">
+                            </p>
+                            <p>
+                              <label for="id_code">Code:</label>
+                              <input type="text" name="code" maxlength="10" required="" id="id_code" value = "${course.code}">
+                            </p>
+                            <p>
+                              <label for="id_credit">Credit:</label>
+                              <input type="number" name="credit" required="" id="id_credit" value = ${course.credit}>
+                            </p>
+                            <p>
+                              <label for="id_description">Description:</label>
+                              <textarea name="description" cols="40" rows="10" required="" id="id_description">${course.description}</textarea>
+                            </p>
+                            <p>
+                              <label for="id_semester">Semester:</label>
+                              <input type="number" name="semester" required="" id="id_semester" value = ${course.semester}>    
+                            </p>
+                            
+                            <p>
+                              <label for="id_prerequisites">Prerequisites:</label>
+                              <select name="prerequisites" id="id_prerequisites" multiple="">
+                                ${getPrerequisitesOptions(prerequisites, course.prerequisites.map(prerequisite => prerequisite.id))}
+                              </select> 
+                            </p>
                         </div>
                         <div class="modal-footer border-t-0">
-                        <button type="button" class="bg-rose-500 flex-auto shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-rose-600 dark:hover:bg-rose-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-300 dark:focus:ring-offset-slate-900 dark:focus:ring-rose-700" data-dismiss="modal">Close</button>
-                        <button type="button" class="bg-green-500 flex-auto shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-green-600 dark:hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-300 dark:focus:ring-offset-slate-900 dark:focus:ring-green-700">Save changes</button>
+                        <button type="button" class="bg-rose-500 flex-auto shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-rose-600 dark:hover:bg-rose-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-300 dark:focus:ring-offset-slate-900 dark:focus:ring-rose-700" data-bs-dismiss="modal">Batal</button>
+                        <button type="button" class="bg-green-500 flex-auto shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-green-600 dark:hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-300 dark:focus:ring-offset-slate-900 dark:focus:ring-green-700" onclick="updateCourse(${course.id})">Simpan</button>
                         </div>
                     </div>
                     </div>
@@ -227,8 +270,6 @@
             return false
         }
 
-        document.getElementById("button_create").onclick = addCourse;
-
         async function deleteCourse(id) {
             fetch(`/course/${id}/`, {
                 method: "DELETE",
@@ -243,6 +284,20 @@
             })
         }
         
+        async function updateCourse(id) {
+            fetch(`/course/${id}/`, {
+                method: "PUT",
+                headers: { "X-CSRFToken": getCookie("csrftoken") },
+                body: new FormData(document.querySelector(`#updateModal-${id}`))
+            }).then(async () => {
+                await refreshCourses()
+                callToast("Success", "Berhasil mengubah mata kuliah")
+                hideModal(`updateModal-${id}`)
+            }).catch((error) => {
+                console.log(error)
+                callToast("Error", "Sistem gagal mengubah mata kuliah")
+            })
+        }
         // JavaScript code for filtering courses
         let searchInput = document.querySelector("#searchInput");
         searchInput.addEventListener("input", function() {
