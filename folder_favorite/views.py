@@ -28,15 +28,11 @@ class FolderFavoriteListView(APIView):
         return render(request, "folder_list.html", {"folders": serializer.data, "form": form})
     
     def post(self, request):
-        FolderFavorite.objects.create(
-            user=request.user,
-            nama=request.data['nama']
-        )
-        # serializer = FolderFavoriteSerializer(data=request.data)
-        # if serializer.is_valid():
-        #     serializer.save()
-        return Response(request.data, status=status.HTTP_201_CREATED)
-        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer = FolderFavoriteSerializer(data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class FolderFavoriteDetailView(APIView):
