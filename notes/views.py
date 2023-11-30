@@ -78,12 +78,19 @@ class NotesListView(APIView):
 class DetailNotesView(APIView):
     def get(self, request, id1, id2):
         notes = Notes.objects.get(pk=id2)
-        vote_status = Vote.objects.filter(user=request.user, notes=notes).values_list('status', flat=True).first() or 0
+        if request.user.is_authenticated:
+            vote_status = Vote.objects.filter(user=request.user, notes=notes).values_list('status', flat=True).first() or 0
+        
+        else:
+            vote_status = 0
         notes.vote_status = vote_status
 
         children = Notes.objects.filter(parent=notes)
         for child in children:
-            vote_status = Vote.objects.filter(user=request.user, notes=child).values_list('status', flat=True).first() or 0
+            if request.user.is_authenticated:
+                vote_status = Vote.objects.filter(user=request.user, notes=child).values_list('status', flat=True).first() or 0
+            else:
+                vote_status = 0
             child.vote_status = vote_status
         context = {
             'notes': notes,
