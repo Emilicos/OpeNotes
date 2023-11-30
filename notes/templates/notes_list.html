@@ -1,82 +1,152 @@
-{% extends 'base.html' %} 
-{% load static %} 
+{% extends 'base.html'   %} 
 
-{% block styles %}
-<style>
-    
-    /* Styling the form */
-    form {
-        background-color: blue; /* Setting the background color of the form to blue */
-        padding: 20px; /* Adding some padding for better spacing */
-        width: 300px; /* Adjusting the width of the form */
-        margin: 0 auto; /* Centering the form horizontally */
-    }
-
-   
-</style>
-{% endblock styles %}
-<head>
-    <title>Notes Form</title>
-    <style>
-        body {
-            background-color: #f0f0f0; /* Setting a light background color for the entire body */
-        }
-
-        /* Styling the form */
-        form {
-            background-color: blue; /* Setting the background color of the form to blue */
-            padding: 20px; /* Adding some padding for better spacing */
-            width: 300px; /* Adjusting the width of the form */
-            margin: 0 auto; /* Centering the form horizontally */
-        }
-
-        /* Styling the form fields */
-        textarea {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-        }
-
-        button {
-            background-color: #4CAF50; /* Green Submit button */
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #45a049; /* Darker green hover effect */
-        }
-    </style>
-</head>
 {% block content %}
+<style>
+   .remove-default-btn {
+	background-color: transparent;
+	border: none;
+	box-shadow: none;
+}
 
-    <div class="grid grid-cols-1 gap-6 lg:gap-8 sm:grid-cols-2 lg:grid-cols-3 max-h-[33rem] overflow-hidden">
+.edit-color {
+	color: #333;
+}
+
+.post-link {
+	text-decoration: none;
+}
+
+.post-text {
+	padding-top: 0.5rem;
+}
+
+.post-img {
+	float: left;
+	margin-right: 1rem;
+}
+
+.post-image {
+	max-width: 100%;
+	height: auto;
+	border-radius: 10px;
+	margin-bottom: 10px;
+}
+
+.child-comment {
+	margin-left: 2rem;
+}
+
+.notification-badge {
+	transition: 0.3s;
+}
+
+.notification-badge:hover {
+	cursor: pointer;
+	opacity: 0.75;
+	transition: 0.3s;
+}
+
+.dropdown {
+	position: relative;
+	display: inline-block;
+}
+
+.dropdown-content {
+	position: absolute;
+	background-color: #f1f1f1;
+	min-width: 350px;
+	box-shadow: 0px 8px 8px 0px rgba(0,0,0,0.2)
+	/* z-index: 1;
+	font-size: 0.9rem; */
+}
+
+.dropdown-content a {
+	color: #000;
+	padding: 12px 16px;
+	text-decoration: none;
+	display: block;
+}
+
+.dropdown-content a:hover {
+	background-color: #ddd;
+}
+
+.dropdown-item-parent {
+	position: relative;
+	display: block;
+}
+
+.dropdown-item-close {
+	position: absolute;
+	top: 0;
+	right: 0;
+	font-size: 1.8rem;
+	padding-right: 5px;
+	transition: 0.3s
+}
+
+.dropdown-item-close:hover {
+	color: rgb(180, 25, 25);
+	transition: 0.3s;
+	cursor: pointer;
+}
+</style>
+<div class="container">
+    <div class="row justify-content-center mt-3">
+        <div class="col-md-5 col-sm-12 border-bottom">
+            <h5>Add a Post!</h5>
+        </div>
+    </div>
+
+    <div class="row justify-content-center mt-3 mb-5">
+        <div class="col-md-5 col-sm-12 border-bottom">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form}}
+                <div class="d-grid gap-2">
+                    <button class="btn btn-success mt-3">Submit!</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     {% for notes in notes_list %}
-        <figure class="relative flex flex-col-reverse bg-slate-50 rounded-lg p-6 dark:bg-slate-800 dark:highlight-white/5 font-bold">
-            <blockquote class="mt-3 text-slate-700 dark:text-slate-300">
-                <span class="inline-block bg-green-200 rounded-full px-3 py-1 text-sm font-bold text-slate-700 mr-2 mb-2">{{course.credit}} SKS</span>                
-                <p>{{notes.body}}</p>
-            </blockquote>
-            <figcaption class="flex items-center space-x-4">
-            <div class="flex-auto"><div class="text-base text-slate-900 font-semibold dark:text-slate-300">
-                <a href="/course/{{course.id}}/" tabindex="0">
-                <span class="absolute inset-0"></span> {{course.code}} </a>
+    <div class="row justify-content-center mt-3">
+        <div class="col-md-5 col-sm-12 border-bottom position-relative">
+            <div>
+                <a href="#">
+                    <img class="round-circle post-img" height="30" width="30" src="{{ notes.photo.url }}" />
+                </a>
+                <p class="post-text">
+                    <a class="text-primary post-link" href="#">@{{ notes.user }}</a> {{ notes.created_on }}
+                </p>
             </div>
-            
-            <!-- <div class="mt-0.5">{{cour}}</div></div> -->
-            </figcaption>
-        </figure>
+            <div class="position-relative">
+                {% if notes.photo %}
+                  <img src="{{ notes.photo.url }}" class="post-image" />
+                {% endif %}
+                <p>{{ notes.body }}</p>
+                <a href="#" class="stretched-link"></a>
+            </div>
+
+            <div class="d-flex flex-row">
+                <form method="POST" action="#">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.path }}">
+                    <button class="remove-default-btn" type="submit">
+                        <i class="far fa-thumbs-up"> <span>{{ post.likes.all.count }}</span></i>
+                    </button>
+                </form>
+
+                <form method="POST" action="#">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.path }}">
+                    <button class="remove-default-btn" type="submit">
+                        <i class="far fa-thumbs-down"> <span>{{ post.dislikes.all.count }}</span></i>
+                    </button>
+                </form>
+        </div>
+    </div>
     {% endfor %}
-    </div>
-    <div>
-        
-    </div>
-    <title>Notes Form</title>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Submit</button>
-    </form>
+</div>
 {% endblock content %}

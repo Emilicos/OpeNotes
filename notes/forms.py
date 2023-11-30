@@ -1,5 +1,6 @@
 from django import forms
 from .models import Notes
+from cloudinary.models import CloudinaryField
 
 class NotesForm(forms.ModelForm):
     body = forms.CharField(
@@ -11,8 +12,8 @@ class NotesForm(forms.ModelForm):
             }
         )
     )
-
+    image = forms.ImageField(required=False)
     class Meta:
         model = Notes
-        fields = ['body']
+        fields = ['body','image']
     
