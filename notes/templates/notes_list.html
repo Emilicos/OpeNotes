@@ -112,9 +112,12 @@
 {% block content %}
 <div aria-live="polite" id = "toast-placement" aria-atomic="true" style="position: relative" class="font-bold z-[50]"></div>
 <div class="container">
+
+{% if request.user.is_authenticated %}
 <div class="w-full text-right flex justify-end">
     <button type="button" class="bg-green-500 flex shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-green-600 dark:hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-300 dark:focus:ring-offset-slate-900 dark:focus:ring-green-700" data-bs-toggle="modal" data-bs-target="#createModal">Create Notes</button>
 </div>
+{% endif %}
 
 <form method="post" onsubmit="return false;" class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-labelledby="createModalTitle" aria-hidden="true">
     {% csrf_token %}
@@ -145,13 +148,15 @@
   </div>
 </form>
 
-
+<div class="text-center">
+    <p class="display-5"><strong>Mata kuliah:</strong> {{course.name}}</p>
+  </div>
     {% for notes in notes_list %}
     <div class="row justify-content-center mt-3">
         <figure class="col-xl-7 col-sm-12 relative flex flex-col bg-slate-50 rounded-lg p-6 dark:bg-slate-800 dark:highlight-white/5 font-bold">
             <a href="/course/notes/{{id_course}}/{{notes.id}}">
             <div class="w-full text-right flex justify-end">
-                <button type="button" class="bg-blue-500 flex shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-blue-600 dark:hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-300 dark:focus:ring-offset-slate-900 dark:focus:ring-blue-700" data-bs-toggle="modal" data-bs-target="#createModal">Open Notes Detail</button>
+                <button type="button" class="bg-blue-500 flex shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-blue-600 dark:hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-300 dark:focus:ring-offset-slate-900 dark:focus:ring-blue-700">Open Notes Detail</button>
             </div>
             </a>
                 <figcaption class="flex items-center space-x-4">

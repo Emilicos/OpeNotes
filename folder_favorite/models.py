@@ -10,11 +10,15 @@ class FolderFavorite(models.Model):
     
     @property
     def notes_count(self):
+        print("coy")
         notes = FolderNotes.objects.filter(folder__id=self.id)
-        return len(notes)
+        print(notes, "gansik")
+        if notes:
+            return len(notes)
+        return 0
 
-    def __str__(self):
-        return self.nama
+    # def __str__(self):
+    #     return self.nama
 
 
 class FolderNotes(models.Model):

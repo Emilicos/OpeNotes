@@ -1,9 +1,38 @@
-from django.http import Http404, HttpResponse
-from django.shortcuts import render
+from django.http import Http404, HttpResponseForbidden, HttpResponse, HttpResponseRedirect
+from django.shortcuts import render, redirect
 from rest_framework import status
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+
+from notes.models import Notes
+
+# Create your views here.
+class NotesDetailView(APIView):
+    permission_classes = []
+    
+    def get_object(self, id):
+        try:
+            return Notes.objects.get(pk=id)
+        except Notes.DoesNotExist:
+            raise Http404
+
+    def get(self, request, id):
+        notes = self.get_object(id)
+        context = {
+            'notes' : notes
+        }
+        return render(request, "notes_detail.html", context)
+    
+    def delete(self, request, id):
+        notes = self.get_object(id)
+        if notes.user != request.user:
+            return HttpResponseForbidden("Anda tidak boleh menghapus Notes ini")
+
+        notes.delete()
+
+        return HttpResponse("BANGGGGG INI DMN")
 
 from course.models import Course
 from course.serializers import CourseSerializer
@@ -25,7 +54,8 @@ class NotesListView(APIView):
         context = {
             'notes_list': notes_list,
             'form': form,
-            'id_course': id
+            'id_course': id,
+            'course': course,
         }
         
         return render(request, 'notes_list.html', context)
@@ -37,16 +67,34 @@ class NotesListView(APIView):
         notes = Notes(user=request.user, course=course, body=request.data['isi'], photo=request.data['file'])
         notes.save()
         
-        return HttpResponse("notes berhasil dibuat oh yeah")
+        return HttpResponse("Notes berhasil dibuat")
             
 
 class DetailNotesView(APIView):
     def get(self, request, id1, id2):
         notes = Notes.objects.get(pk=id2)
+        vote_status = Vote.objects.filter(user=request.user, notes=notes).values_list('status', flat=True).first() or 0
+        notes.vote_status = vote_status
+
+        children = Notes.objects.filter(parent=notes)
+        for child in children:
+            vote_status = Vote.objects.filter(user=request.user, notes=child).values_list('status', flat=True).first() or 0
+            child.vote_status = vote_status
         context = {
             'notes': notes,
+            'children': children,
+            'id_course': notes.course.id,
         }
         return render(request, 'notes_detail.html', context)
+    
+    def post(self, request, id1, id2):
+        print(request.data)
+        course = Course.objects.get(pk=id1)
+        parent = Notes.objects.get(pk=id2)
+        notes = Notes(user=request.user, course=course, body=request.data['isi'], photo=request.data['file'], parent=parent)
+        notes.save()
+        
+        return HttpResponse("Notes berhasil dibuat")
     
 
 class VoteView(APIView):

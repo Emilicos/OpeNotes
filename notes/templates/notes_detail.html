@@ -2,10 +2,408 @@
 {% load static %} 
 
 {% block styles %}
+<style>
+    .form input[type="text"], .form input[type="number"], .form textarea, .form select {
+        background-color: #334155;
+        border: solid 1px rgb(203 213 225);
+        color: #fff; /* White text color */
+        padding: 0.75em 1em;
+        border-radius: 0.5em;
+    }
+
+    .form p {
+        display: flex;
+        flex-direction: column;
+        row-gap: 1em;
+        font-weight: bold;
+    }
+</style>
 {% endblock styles %}
 
 {% block content %}
-<h1> {{notes.user}} </h1>
-<h1> {{notes.body}} </h1>
+
+<div aria-live="polite" id = "toast-placement" aria-atomic="true" style="position: relative" class="font-bold z-[50]"></div>
+
+
+<div class="row justify-content-center mt-3">
+  <figure class="col-xl-9 col-sm-12 relative flex flex-col bg-slate-50 rounded-lg p-6 dark:bg-slate-800 dark:highlight-white/5 font-bold">
+        <div class="w-full text-right flex justify-end">
+          {% if request.user.is_authenticated %}
+              <button type="button" class="bg-blue-500 flex shadow text-white rounded-md text-sm border-y border-transparent py-2 px-3 mr-2 font-bold hover:bg-blue-600 dark:hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-300 dark:focus:ring-offset-slate-900 dark:focus:ring-blue-700" data-bs-toggle="modal" data-bs-target="#replyModal">Reply Notes</button>
+          {% endif %}
+
+          {% if request.user.is_authenticated %}
+              <button type="button" class="bg-orange-500 flex shadow text-white rounded-md text-sm border-y border-transparent py-2 px-3 mr-2 font-bold hover:bg-orange-600 dark:hover:bg-orange-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-300 dark:focus:ring-offset-slate-900 dark:focus:ring-orange-700" data-bs-toggle="modal" data-bs-target="#reportModal">Report Notes</button>
+          {% endif %}
+          
+          {% if request.user == notes.user %}
+              <button type="button" class="bg-rose-500 flex shadow text-white rounded-md text-sm border-y border-transparent py-2 px-3 font-bold hover:bg-rose-600 dark:hover:bg-rose-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-300 dark:focus:ring-offset-slate-900 dark:focus:ring-green-700" data-bs-toggle="modal" data-bs-target="#deleteModal">Delete Notes</button>
+          {% endif %}
+      </div>
+          <figcaption class="flex items-center space-x-4">
+              <div class="flex-auto">
+                  <div class="text-base text-slate-900 font-semibold dark:text-slate-300">
+                      <span class="inline-block bg-green-200 rounded px-2 py-1 text-sm font-bold text-slate-700 mr-2 mb-2">{{notes.user}} </span> 
+                      
+                  </div>
+                  
+                  <div class="mt-0.5">{{notes.created_on}}</div>
+              </div>
+          </figcaption>
+          <blockquote class="mt-3 text-slate-700 dark:text-slate-300">
+              <span class="absolute inset-0 pointer-events-none"></span> {{notes.body}}
+              <!-- <p>${course.description}</p> -->
+              {% if notes.photo %}
+              <img src="{{ notes.photo.url }}" class="post-image mx-auto" />
+              {% endif %}
+              <!-- ${getPrerequisites(course)} -->
+              <br><br>
+              {% if notes.vote_status == -1 %}
+              <div class="flex items-center space-x-4">
+                  <button class="p-2 border rounded-full bg-green-800 hover:bg-green-600 dark:hover:bg-green-400" onclick="updateVote('{{notes.pk}}')">
+                      👍
+                  </button>
+                  <span class="text-2xl font-bold">{{notes.score}}</span>
+                  <button class="p-2 border rounded-full bg-red-600 hover:bg-red-500 dark:hover:bg-red-400" onclick="deleteVote('{{notes.pk}}')">
+                      👎
+                  </button>
+              </div>
+              {% elif notes.vote_status == 0 %}
+              <div class="flex items-center space-x-4">
+                  <button class="p-2 border rounded-full bg-green-800 hover:bg-green-600 dark:hover:bg-green-400" onclick="postVote('{{notes.pk}}', 1)">
+                      👍
+                  </button>
+                  <span class="text-2xl font-bold">{{notes.score}}</span>
+                  <button class="p-2 border rounded-full bg-red-800 hover:bg-red-600 dark:hover:bg-red-400" onclick="postVote('{{notes.pk}}', -1)">
+                      👎
+                  </button>
+              </div>
+              {% elif notes.vote_status == 1 %}
+              <div class="flex items-center space-x-4">
+                  <button class="p-2 border rounded-full bg-green-600 hover:bg-green-500 dark:hover:bg-green-400" onclick="deleteVote('{{notes.pk}}')">
+                      👍
+                  </button>
+                  <span class="text-2xl font-bold">{{notes.score}}</span>
+                  <button class="p-2 border rounded-full bg-red-800 hover:bg-red-600 dark:hover:bg-red-400" onclick="updateVote('{{notes.pk}}')">
+                      👎
+                  </button>
+              </div>
+              
+              {% endif %}
+          
+          </blockquote>
+      <!-- ${admin ? `<i class="fa-solid fa-gear absolute right-5 cursor-pointer hover:text-slate-300" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i><div class="dropdown-menu" aria-labelledby="dropdownMenuButton"><button class="dropdown-item cursor-pointer" onclick="" data-bs-toggle="modal" data-bs-target="#updateModal-${course.id}">Update</button><button class="dropdown-item cursor-pointer" onclick="" data-bs-toggle="modal" data-bs-target="#deleteModal-${course.id}">Delete</button></div>` : ''} -->
+  </figure>
+</div>
+<br>
+
+{% for child in children %}
+  <div class="row justify-content-center mt-3">
+      <figure class="col-xl-7 col-sm-12 relative flex flex-col bg-slate-50 rounded-lg p-6 dark:bg-slate-800 dark:highlight-white/5 font-bold">
+          <a href="/course/notes/{{notes.course.id}}/{{child.id}}">
+          <div class="w-full text-right flex justify-end">
+              <button type="button" class="bg-blue-500 flex shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-blue-600 dark:hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-300 dark:focus:ring-offset-slate-900 dark:focus:ring-blue-700">Open Notes Detail</button>
+          </div>
+          </a>
+              <figcaption class="flex items-center space-x-4">
+                  <div class="flex-auto">
+                      <div class="text-base text-slate-900 font-semibold dark:text-slate-300">
+                          <span class="inline-block bg-green-200 rounded px-2 py-1 text-sm font-bold text-slate-700 mr-2 mb-2">{{child.user}} </span> 
+                          
+                      </div>
+                      
+                      <div class="mt-0.5">{{child.created_on}}</div>
+                  </div>
+              </figcaption>
+              <blockquote class="mt-3 text-slate-700 dark:text-slate-300">
+                  <span class="absolute inset-0 pointer-events-none"></span> {{child.body}}
+                  <!-- <p>${course.description}</p> -->
+                  {% if child.photo %}
+                  <img src="{{ child.photo.url }}" class="post-image mx-auto" />
+                  {% endif %}
+                  <!-- ${getPrerequisites(course)} -->
+                  <br><br>
+                  {% if child.vote_status == -1 %}
+                  <div class="flex items-center space-x-4">
+                      <button class="p-2 border rounded-full bg-green-800 hover:bg-green-600 dark:hover:bg-green-400" onclick="updateVote('{{child.pk}}')">
+                          👍
+                      </button>
+                      <span class="text-2xl font-bold">{{child.score}}</span>
+                      <button class="p-2 border rounded-full bg-red-600 hover:bg-red-500 dark:hover:bg-red-400" onclick="deleteVote('{{child.pk}}')">
+                          👎
+                      </button>
+                  </div>
+                  {% elif child.vote_status == 0 %}
+                  <div class="flex items-center space-x-4">
+                      <button class="p-2 border rounded-full bg-green-800 hover:bg-green-600 dark:hover:bg-green-400" onclick="postVote('{{child.pk}}', 1)">
+                          👍
+                      </button>
+                      <span class="text-2xl font-bold">{{child.score}}</span>
+                      <button class="p-2 border rounded-full bg-red-800 hover:bg-red-600 dark:hover:bg-red-400" onclick="postVote('{{child.pk}}', -1)">
+                          👎
+                      </button>
+                  </div>
+                  {% elif child.vote_status == 1 %}
+                  <div class="flex items-center space-x-4">
+                      <button class="p-2 border rounded-full bg-green-600 hover:bg-green-500 dark:hover:bg-green-400" onclick="deleteVote('{{child.pk}}')">
+                          👍
+                      </button>
+                      <span class="text-2xl font-bold">{{child.score}}</span>
+                      <button class="p-2 border rounded-full bg-red-800 hover:bg-red-600 dark:hover:bg-red-400" onclick="updateVote('{{child.pk}}')">
+                          👎
+                      </button>
+                  </div>
+                  
+                  {% endif %}
+              
+              </blockquote>
+          <!-- ${admin ? `<i class="fa-solid fa-gear absolute right-5 cursor-pointer hover:text-slate-300" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i><div class="dropdown-menu" aria-labelledby="dropdownMenuButton"><button class="dropdown-item cursor-pointer" onclick="" data-bs-toggle="modal" data-bs-target="#updateModal-${course.id}">Update</button><button class="dropdown-item cursor-pointer" onclick="" data-bs-toggle="modal" data-bs-target="#deleteModal-${course.id}">Delete</button></div>` : ''} -->
+      </figure>
+  </div>
+      <br>
+      {% endfor %}
+
+  <form method="post" onsubmit="return false;" class="modal fade" id="replyModal" tabindex="-1" role="dialog" aria-labelledby="replyModalTitle" aria-hidden="true">
+    {% csrf_token %}
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content bg-[#272B52]">
+        <div class="modal-header border-b-0">
+          <h5 class="font-bold" id="exampleModalLongTitle">Reply Notes</h5>
+          <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body flex flex-col form gap-y-6">
+            <p>
+                <label for="id_name">Isi:</label>
+                <textarea name="isi" required></textarea>
+            </p>
+            <p>
+                <label for="file">Upload file (harus dalam format .jpg, .jpeg, .png)</label>
+                <input type="file" id="file" name="file" accept=".jpg, .jpeg, .png">
+            </p>
+        </div>
+        <div class="modal-footer border-t-0">
+          <button type="button" data-bs-dismiss="modal" class="bg-rose-500 flex-auto shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-rose-600 dark:hover:bg-rose-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-300 dark:focus:ring-offset-slate-900 dark:focus:ring-rose-700" data-dismiss="modal">Batal</button>
+          <button type="submit" data-bs-dismiss="modal" id = "button_reply" class="bg-green-500 flex-auto shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-green-600 dark:hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-300 dark:focus:ring-offset-slate-900 dark:focus:ring-green-700">Simpan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>      
+
+<form method="post" onsubmit="return false;" class="modal fade" id="reportModal" tabindex="-1" role="dialog" aria-labelledby="reportModalTitle" aria-hidden="true">
+    {% csrf_token %}
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content bg-[#272B52]">
+        <div class="modal-header border-b-0">
+          <h5 class="font-bold" id="exampleModalLongTitle">Report Notes</h5>
+          <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body flex flex-col form gap-y-6">
+            <p>
+                <label for="id_name">Alasan:</label>
+                <input type="text" name="alasan" required="">
+            </p>
+            <input type="hidden" name="notes_id" value="{{notes.id}}">
+        </div>
+        <div class="modal-footer border-t-0">
+          <button type="button" data-bs-dismiss="modal" class="bg-rose-500 flex-auto shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-rose-600 dark:hover:bg-rose-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-300 dark:focus:ring-offset-slate-900 dark:focus:ring-rose-700" data-dismiss="modal">Batal</button>
+          <button type="submit" data-bs-dismiss="modal" id = "button_report" class="bg-green-500 flex-auto shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-green-600 dark:hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-300 dark:focus:ring-offset-slate-900 dark:focus:ring-green-700">Simpan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+<form method="post" onsubmit="return false;" class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalTitle" aria-hidden="true">
+  {% csrf_token %}
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content bg-[#272B52]">
+      <div class="modal-header border-b-0">
+        <h5 class="font-bold" id="exampleModalLongTitle">Delete Notes</h5>
+        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body flex flex-col form gap-y-6">
+          <p>
+              Apakah yakin ingin menghapus Notes?
+          </p>
+          <input type="hidden" name="notes_id" value="{{notes.id}}">
+      </div>
+      <div class="modal-footer border-t-0">
+        <button type="button" data-bs-dismiss="modal" class="bg-rose-500 flex-auto shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-rose-600 dark:hover:bg-rose-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-300 dark:focus:ring-offset-slate-900 dark:focus:ring-rose-700" data-dismiss="modal">Tidak</button>
+        <button type="submit" data-bs-dismiss="modal" id = "button_delete" class="bg-green-500 flex-auto shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-green-600 dark:hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-300 dark:focus:ring-offset-slate-900 dark:focus:ring-green-700">Ya</button>
+      </div>
+    </div>
+  </div>
+</div>
+</form>
+
+
+
+<script>
+    function getCookie(c_name){
+        if (document.cookie.length > 0)
+        {
+            c_start = document.cookie.indexOf(c_name + "=");
+            if (c_start != -1)
+            {
+                c_start = c_start + c_name.length + 1;
+                c_end = document.cookie.indexOf(";", c_start);
+                if (c_end == -1) c_end = document.cookie.length;
+                return unescape(document.cookie.substring(c_start,c_end));
+            }
+        }
+        return "";
+    }
+
+    function reportNotes() {
+        console.log(new FormData(document.querySelector('#reportModal')))
+        fetch(`/report/`, {
+            method: "POST",
+            body: new FormData(document.querySelector('#reportModal'))
+        }).then(res => {
+          if(res.ok == true)
+            callToast("Success", "Berhasil mengirim report")
+          else
+            callToast("Error", "Sistem gagal menyimpan report")
+        }).catch((error) => {
+            console.log(error)
+            callToast("Error", "Sistem gagal menyimpan report")
+        })
+
+        document.getElementById("reportModal").reset()
+        return false
+    }
+
+    document.getElementById("button_report").onclick = reportNotes
+
+    function deleteNotes() {
+        formData = new FormData(document.querySelector('#deleteModal'))
+        fetch(`/notes/${formData.get('notes_id')}`, {
+            method: "DELETE",
+            headers: { "X-CSRFToken": getCookie("csrftoken") },
+        }).then(res => {
+          if(res.ok == true){
+            callToast("Success", "Berhasil menghapus Notes")
+            location.reload()
+          }
+          else{
+            callToast("Error", "Sistem gagal menghapus Notes")
+          }
+        }).catch((error) => {
+            console.log(error)
+            callToast("Error", "Sistem gagal menghapus Notes")
+        })
+
+        document.getElementById("deleteModal").reset()
+
+        return false
+    }
+
+    document.getElementById("button_delete").onclick = deleteNotes
+
+    function replyNotes() {
+        console.log(new FormData(document.querySelector('#reportModal')))
+        fetch(`/course/notes/{{notes.course.id}}/{{notes.id}}/`, {
+            method: "POST",
+            body: new FormData(document.querySelector('#replyModal'))
+        }).then(res => {
+          if(res.ok == true){
+            callToast("Success", "Berhasil mengirim Notes reply")
+            location.reload()
+          }
+          else
+            callToast("Error", "Sistem gagal menyimpan Notes reply")
+        }).catch((error) => {
+            console.log(error)
+            callToast("Error", "Sistem gagal menyimpan Notes reply")
+        })
+
+        document.getElementById("replyModal").reset()
+        return false
+    }
+
+    document.getElementById("button_reply").onclick = replyNotes
+
+    async function postVote(id, status) {
+        fetch(`/course/notes/{{id_course}}/${id}/vote/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCookie("csrftoken"),
+            },
+            body: JSON.stringify({ status: status }),
+        }).then(async () => {
+            // await refreshcourse/Notes({{id_course}}/)
+            location.reload();
+            callToast("Success", "Berhasil menyimpan data vote")
+        }).catch((error) => {
+            console.log(error)
+            callToast("Error", "Sistem gagal menyimpan data vote")
+        })
+        
+        return false
+    }
+
+    async function deleteVote(id) {
+        console.log("AKWKWKWKW")
+        fetch(`/course/notes/{{id_course}}/${id}/vote/`, {
+            method: "DELETE",
+            headers: { "X-CSRFToken": getCookie("csrftoken") },
+        }).then(async () => {
+            // await refreshcourse/Notes({{id_course}}/)
+            location.reload();
+            callToast("Success", "Berhasil menyimpan data vote")
+        }).catch((error) => {
+            console.log(error)
+            callToast("Error", "Sistem gagal menyimpan data vote")
+        })
+    }
+        
+    async function updateVote(id) {
+        fetch(`/course/notes/{{id_course}}/${id}/vote/`, {
+            method: "PUT",
+            headers: { "X-CSRFToken": getCookie("csrftoken") },
+        }).then(async () => {
+            // await refreshNotes()
+            location.reload();
+            callToast("Success", "Berhasil menyimpan data vote")
+        }).catch((error) => {
+            console.log(error)
+            callToast("Error", "Sistem gagal menyimpan data vote")
+        })
+    }
+
+    function generateToast(status, message) {
+        const toast = 
+        `
+            <div class="toast bg-[#272B52] mx-8 z-50" style="position: fixed; top: 60px; right: 0;">
+                <div class="toast-header bg-[#272B52] ${status === "Success" ? 'text-green-500' : 'text-rose-500'}">
+                    <strong class="mr-auto ${status === "Success" ? 'text-green-500' : 'text-rose-500'} font-bold text-xl">${status}</strong>
+                    <button type="button" class="ml-2 mb-1 close" data-bs-dismiss="toast" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="toast-body">
+                    ${message}
+                </div>
+            </div>
+        `
+        return toast 
+    }
+
+    function callToast(status, message) {
+        $('.toast').toast('hide')
+        document.getElementById("toast-placement").innerHTML = ""
+        const toast = generateToast(status, message)
+        document.getElementById("toast-placement").innerHTML = toast
+        $('.toast').toast('show')
+    }
+</script>
 
 {% endblock content %}

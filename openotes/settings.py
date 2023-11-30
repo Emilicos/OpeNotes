@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'landing',
     'course',
     'notes',
+    'report',
     'folder_favorite',
 ]
 

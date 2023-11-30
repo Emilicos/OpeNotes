@@ -20,7 +20,7 @@ from course.views import CourseDetailView, CourseListView
 from notes.views import NotesListView, DetailNotesView, VoteView
 
 urlpatterns = [
-    path("<str:id>/",NotesListView.as_view()),
+    path("<str:id>/", NotesListView.as_view()),
     path("<str:id1>/<str:id2>/", DetailNotesView.as_view()),
     path("<str:id1>/<str:id2>/vote/", VoteView.as_view())
 ]
