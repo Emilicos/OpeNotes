@@ -41,31 +41,7 @@ from notes.models import Notes, Vote
 
 # Create your views here.
 
-class NotesListView(APIView):
-    def get(self, request, id):
-        course = Course.objects.get(pk=id)
-        course_notes = Notes.objects.filter(course=course)
-        notes_list = course_notes.order_by('-created_on')
-        
-        for notes in notes_list:
-            if request.user.is_authenticated:
-                vote_status = Vote.objects.filter(user=request.user, notes=notes).values_list('status', flat=True).first() or 0
-            
-            else:
-                vote_status = 0
-            notes.vote_status = vote_status
-            
-        form = NotesForm()
-        context = {
-            'notes_list': notes_list,
-            'form': form,
-            'id_course': id,
-            'course': course,
-        }
-        
-        return render(request, 'notes_list.html', context)
-        # return render(request, 'coba.html', context)
-        
+class NotesListView(APIView):    
     def post(self, request, id):
         print(request.data)
         course = Course.objects.get(pk=id)
@@ -73,7 +49,6 @@ class NotesListView(APIView):
         notes.save()
         
         return HttpResponse("Notes berhasil dibuat")
-            
 
 class DetailNotesView(APIView):
     def get(self, request, id1, id2):
