@@ -10,19 +10,19 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
+        ('notes', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Profile',
+            name='Laporan',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('npm', models.CharField(blank=True, max_length=10, null=True)),
-                ('faculty', models.CharField(blank=True, max_length=128)),
-                ('study_program', models.CharField(blank=True, max_length=128)),
-                ('educational_program', models.CharField(blank=True, max_length=128)),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                ('alasan', models.TextField()),
+                ('reviewed', models.BooleanField(default=False)),
+                ('pelapor', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                ('terlapor', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='notes.notes')),
             ],
         ),
     ]
