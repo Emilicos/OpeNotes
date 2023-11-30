@@ -7,3 +7,4 @@ urllib3
 djangorestframework
 python-dotenv
 xmltodict
+cloudinary

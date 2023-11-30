@@ -22,5 +22,5 @@ urlpatterns = [
     path("", include("landing.urls")),
     path("api/auth/", include("authentication.urls")),
     path("course/", include("course.urls")),
-    path("favorite/", include("folder_favorite.urls")),
+    path("course/notes/", include("notes.urls")),
 ]
