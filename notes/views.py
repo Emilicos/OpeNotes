@@ -14,7 +14,7 @@ from notes.models import Notes
 
 class NotesListView(APIView):
     def get(self, request):
-        notes_list = Notes.objects.all()
+        notes_list = Notes.objects.all().order_by('-created_on')
         form = NotesForm()
         context = {
             'notes_list': notes_list,
@@ -44,5 +44,10 @@ class NotesListView(APIView):
             
 
 class DetailNotesView(APIView):
-    def get(self, request, pk):
-        notes = Notes.objects.get(pk=pk)
+    def get(self, request, id):
+        notes = Notes.objects.get(pk=id)
+        context = {
+            'notes': notes,
+        }
+        return render(request, 'notes_detail.html', context)
+    
