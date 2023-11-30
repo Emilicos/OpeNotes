@@ -46,8 +46,13 @@ class NotesListView(APIView):
         course = Course.objects.get(pk=id)
         course_notes = Notes.objects.filter(course=course)
         notes_list = course_notes.order_by('-created_on')
+        
         for notes in notes_list:
-            vote_status = Vote.objects.filter(user=request.user, notes=notes).values_list('status', flat=True).first() or 0
+            if request.user.is_authenticated:
+                vote_status = Vote.objects.filter(user=request.user, notes=notes).values_list('status', flat=True).first() or 0
+            
+            else:
+                vote_status = 0
             notes.vote_status = vote_status
             
         form = NotesForm()
