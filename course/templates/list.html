@@ -53,14 +53,16 @@
                 {% csrf_token %}
                 <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content bg-[#272B52]">
+                    <div id = "scrollCreate"> </div>
                     <div class="modal-header border-b-0">
                     <h5 class="font-bold" id="exampleModalLongTitle">Create Mata Kuliah</h5>
                     <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                     </div>
+                    <div id = "errorCreate" class = "text-rose-400 font-bold text-center flex flex-col gap-y-2 w-full"> </div>
                     <div class="modal-body flex flex-col form gap-y-6" id = "modalContentCreate">
-                    {{form.as_p}}
+                        {{form.as_p}}
                     </div>
                     <div class="modal-footer border-t-0">
                     <button type="button" class="bg-rose-500 flex-auto shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-rose-600 dark:hover:bg-rose-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-300 dark:focus:ring-offset-slate-900 dark:focus:ring-rose-700" data-bs-dismiss="modal">Batal</button>
@@ -97,7 +99,7 @@
         function generateToast(status, message) {
             const toast = 
             `
-                <div class="toast bg-[#272B52] mx-8 z-50" style="position: fixed; top: 60px; right: 0;">
+                <div class="toast bg-[#272B52] mx-8 z-[10000]" style="position: fixed; top: 60px; right: 0;">
                     <div class="toast-header bg-[#272B52] ${status === "Success" ? 'text-green-500' : 'text-rose-500'}">
                         <strong class="mr-auto ${status === "Success" ? 'text-green-500' : 'text-rose-500'} font-bold text-xl">${status}</strong>
                         <button type="button" class="ml-2 mb-1 close" data-bs-dismiss="toast" aria-label="Close">
@@ -130,10 +132,12 @@
             return ""
         } 
 
-        function getPrerequisitesOptions(prerequisites, selectedPrerequisites) {
+        function getPrerequisitesOptions(prerequisites, selectedPrerequisites, courseId) {
             let prerequisitesOptions = "";
             prerequisites.forEach((prerequisite) => {
-                prerequisitesOptions += `<option value="${prerequisite.id}" ${selectedPrerequisites.includes(prerequisite.id) ? "selected" : ""}>${prerequisite.name}</option>`
+                if(prerequisite.id !== courseId) {
+                    prerequisitesOptions += `<option value="${prerequisite.id}" ${selectedPrerequisites.includes(prerequisite.id) ? "selected" : ""}>${prerequisite.name}</option>`
+                }
             })
             return prerequisitesOptions
         }
@@ -143,7 +147,7 @@
             const { courses, prerequisites, form } = response
 
             document.getElementById("courseContainer").innerHTML = "";
-            
+
             if(admin) {
                 document.getElementById("modalContentCreate").innerHTML = form;
             }
@@ -174,12 +178,14 @@
                 <form class="modal fade" method="put" onsubmit="return false;" id="updateModal-${course.id}" tabindex="-1" role="dialog" aria-labelledby="updatemodalTitle" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered" role="document">
                     <div class="modal-content bg-[#272B52]">
+                        <div id = "scrollUpdate-${course.id}"> </div>
                         <div class="modal-header border-b-0">
                         <h5 class="font-bold" id="exampleModalLongTitle">Update Mata Kuliah</h5>
                         <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                         </div>
+                        <div id = "errorUpdate-${course.id}" class = "text-rose-400 font-bold text-center flex flex-col gap-y-2 w-full"> </div>
                         <div class="modal-body flex flex-col form gap-y-6" id="modalContentUpdate-${course.id}">
                             <p>
                               <label for="id_name">Name:</label>
@@ -205,7 +211,7 @@
                             <p>
                               <label for="id_prerequisites">Prerequisites:</label>
                               <select name="prerequisites" id="id_prerequisites" multiple="">
-                                ${getPrerequisitesOptions(prerequisites, course.prerequisites.map(prerequisite => prerequisite.id))}
+                                ${getPrerequisitesOptions(prerequisites, course.prerequisites.map(prerequisite => prerequisite.id), course.id)}
                               </select> 
                             </p>
                         </div>
@@ -253,23 +259,48 @@
         function hideModal(modalId) {
             $(`#${modalId}`).modal('hide');
             $('body').removeClass('modal-open');
-            $('.modal-backdrop').remove();      
+            $('.modal-backdrop').remove();
+            $('body').css('overflow', 'auto');
             document.getElementById(modalId)?.reset()
         }
 
+        async function showValidationError(res, error, scrollElement) {
+            error.innerHTML = ""
+            const { credit, semester } = await res.json();
+
+            if(credit && credit.length > 0) {
+                error.innerHTML += `<p class = "text-center"> ${credit[0]} </p>`
+            } 
+            
+            if(semester && semester.length > 0) {
+                error.innerHTML += `<p class = "text-center"> ${semester[0]} </p>`
+            }
+
+            scrollElement.scrollIntoView({ behavior: "smooth"});
+        }
+
         async function addCourse() {
+            const errorCreate = document.getElementById("errorCreate")
             fetch(`/course/`, {
                 method: "POST",
                 body: new FormData(document.querySelector('#createModal'))
-            }).then(async () => {
-                await refreshCourses()
-                callToast("Success", "Berhasil menambahkan mata kuliah")
-                hideModal("createModal")
+            }).then(async (res) => {
+                if(res.ok) {
+                    await refreshCourses()
+                    callToast("Success", "Berhasil menambahkan mata kuliah")
+                    hideModal("createModal")
+                } else {
+                    if(res.status === 400) {
+                        showValidationError(res, errorCreate, document.getElementById("scrollCreate"))
+                    } else {
+                        callToast("Error", "Sistem gagal menyimpan mata kuliah")
+                    }
+                }
             }).catch((error) => {
                 console.log(error)
-                callToast("Error", "Sistem gagal menyimpan mata kuliah")
             })
             
+            errorCreate.innerHTML = ""
             return false
         }
 
@@ -277,29 +308,44 @@
             fetch(`/course/${id}/`, {
                 method: "DELETE",
                 headers: { "X-CSRFToken": getCookie("csrftoken") },
-            }).then(async () => {
-                await refreshCourses()
-                callToast("Success", "Berhasil menghapus mata kuliah")
-                hideModal(`deleteModal-${id}`)
+            }).then(async (res) => {
+                if(res.ok) {
+                    await refreshCourses()
+                    callToast("Success", "Berhasil menghapus mata kuliah")
+                    hideModal(`deleteModal-${id}`)
+                } else {
+                    callToast("Error", "Sistem gagal menghapus mata kuliah")
+                }
             }).catch((error) => {
                 console.log(error)
-                callToast("Error", "Sistem gagal menghapus mata kuliah")
             })
         }
         
         async function updateCourse(id) {
+            const errorUpdate = document.getElementById(`errorUpdate-${id}`)
             fetch(`/course/${id}/`, {
                 method: "PUT",
                 headers: { "X-CSRFToken": getCookie("csrftoken") },
                 body: new FormData(document.querySelector(`#updateModal-${id}`))
-            }).then(async () => {
-                await refreshCourses()
-                callToast("Success", "Berhasil mengubah mata kuliah")
-                hideModal(`updateModal-${id}`)
+            }).then(async (res) => {
+                if(res.ok) {
+                    await refreshCourses()
+                    callToast("Success", "Berhasil mengubah mata kuliah")
+                    hideModal(`updateModal-${id}`)
+                } else {
+                    if(res.status === 400) {
+                        showValidationError(res, errorUpdate, document.getElementById(`scrollUpdate-${id}`))  
+                    } else {
+                        callToast("Error", "Sistem gagal menyimpan data mata kuliah")
+                    }
+                }
             }).catch((error) => {
                 console.log(error)
-                callToast("Error", "Sistem gagal mengubah mata kuliah")
             })
+
+            errorUpdate.innerHTML = ""
+
+            return false
         }
         // JavaScript code for filtering courses
         let searchInput = document.querySelector("#searchInput");

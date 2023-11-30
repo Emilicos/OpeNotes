@@ -38,8 +38,8 @@ class CourseListView(APIView):
                     course.prerequisites.add(pre_course)
                 except Course.DoesNotExist:
                     raise Http404()
-            
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class CourseDetailView(APIView):
