@@ -8,7 +8,7 @@ from django.http import JsonResponse
 
 from .forms import FolderFavoriteForm
 from .models import FolderFavorite, FolderNotes
-from .serializers import FolderFavoriteSerializer, FolderNotesCountSerializer
+from .serializers import FolderFavoriteSerializer
 
 # Create your views here.
 class FolderFavoriteListView(APIView):
@@ -17,10 +17,8 @@ class FolderFavoriteListView(APIView):
     def get(self, request):
         rest = request.GET.get('rest', None)
         user = request.user
-        folder_favorites = FolderFavorite.objects.filter(user=user)
-        folders = [{'object': folder, 'notes_count': len(FolderNotes.objects.filter(folder=folder))}
-                   for folder in folder_favorites]
-        serializer = FolderNotesCountSerializer(folders, many=True)
+        folders = FolderFavorite.objects.filter(user=user)
+        serializer = FolderFavoriteSerializer(folders, many=True)
         form = FolderFavoriteForm()
 
         if rest:

@@ -8,6 +8,11 @@ class FolderFavorite(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     nama = models.CharField(max_length=50)
     
+    @property
+    def notes_count(self):
+        notes = FolderNotes.objects.filter(folder__id=self.id)
+        return len(notes)
+
     def __str__(self):
         return self.nama
 

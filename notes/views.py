@@ -31,25 +31,11 @@ class NotesListView(APIView):
         return render(request, 'notes_list.html', context)
         # return render(request, 'coba.html', context)
         
-    def post(self, request):
+    def post(self, request, id):
         print(request.data)
-        course = Course.objects.get(pk=1)
+        course = Course.objects.get(pk=id)
         notes = Notes(user=request.user, course=course, body=request.data['isi'], photo=request.data['file'])
         notes.save()
-        # notes_list = Notes.objects.all()
-        # form = NotesForm(request.POST, request.FILES)
-        
-        # if form.is_valid():
-        #     new_notes = form.save(commit=False)
-        #     new_notes.user = request.user
-        #     new_course = Course.objects.create(name="AAA",code="AAA")
-        #     new_notes.course = new_course
-        #     new_notes.save()
-
-        # context = {
-        #     'notes_list': notes_list,
-        #     'form': form,
-        # }
         
         return HttpResponse("notes berhasil dibuat oh yeah")
             
