@@ -44,6 +44,10 @@
             </div>
         {% endif %}
 
+        <div id = "courseIndicator">
+
+        </div>
+        
         <div class="grid grid-cols-1 gap-6 lg:gap-8 sm:grid-cols-2 lg:grid-cols-3 overflow-hidden" id="courseContainer">
         
         </div>
@@ -151,7 +155,14 @@
             if(admin) {
                 document.getElementById("modalContentCreate").innerHTML = form;
             }
-
+            
+            if(courses.length) {
+                document.getElementById("courseIndicator").innerHTML = ""
+            } else {
+                document.getElementById("courseIndicator").innerHTML = `<div class="full p-6 bg-gray border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 flex flex-col justify-center items-center">
+                    <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Belum ada data mengenai mata kuliah.</h5>
+                </div>`
+            }
             let DOM = ""
             courses.forEach((course) => {
                 DOM += `
@@ -355,7 +366,7 @@
 
             searchInput.addEventListener("input", function() {
                 const searchText = searchInput.value.trim().toLowerCase();
-
+                var count = 0;
                 courseItems.forEach(function(courseItem) {
                     var courseText = courseItem.textContent.toLowerCase();
                     const index = courseText.lastIndexOf("mata kuliah prasyarat")
@@ -372,10 +383,19 @@
 
                     if (courseText.includes(searchText)) {
                         courseItem.style.display = "flex";
+                        count += 1;
                     } else {
                         courseItem.style.display = "none";
                     }
                 });
+
+                if(count === 0) {
+                    document.getElementById("courseIndicator").innerHTML = `<div class="full p-6 bg-gray border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 flex flex-col justify-center items-center">
+                        <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Tidak ada mata kuliah yang ditemukan.</h5>
+                      </div>`
+                } else {
+                    document.getElementById("courseIndicator").innerHTML = ""
+                }
             });
         });
         
