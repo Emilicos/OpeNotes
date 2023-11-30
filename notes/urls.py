@@ -19,6 +19,6 @@ from django.urls import path
 from course.views import CourseDetailView, CourseListView
 from notes.views import NotesListView, DetailNotesView
 urlpatterns = [
-    path("",NotesListView.as_view()),
-    path("<str:id>/", DetailNotesView.as_view()),
+    path("<str:id>/",NotesListView.as_view()),
+    path("<str:id1>/<str:id2>/", DetailNotesView.as_view()),
 ]
