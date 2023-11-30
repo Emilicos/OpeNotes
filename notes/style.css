@@ -1,0 +1,56 @@
+/* Basic reset */
+body, h1, h2, p, button {
+  margin: 0;
+  padding: 0;
+}
+
+/* Tweet container styles */
+.tweet {
+  width: 400px;
+  margin: 20px auto;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+/* User profile styles */
+.user-profile img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
+
+.user-profile h2 {
+  font-size: 18px;
+  margin-bottom: 5px;
+}
+
+.user-profile p {
+  color: #666;
+  margin-bottom: 10px;
+}
+
+/* Tweet content styles */
+.tweet-content p {
+  margin-bottom: 10px;
+}
+
+/* Tweet actions styles */
+.tweet-actions {
+  display: flex;
+  justify-content: space-between;
+}
+
+.tweet-actions button {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  background-color: #55acee; /* Twitter blue */
+  color: white;
+}
+
+/* Button hover effect */
+.tweet-actions button:hover {
+  background-color: #2795d9; /* Darker blue */
+}

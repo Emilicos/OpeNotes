@@ -21,4 +21,10 @@ def export_vars(request):
             "url": "/favorite"
         }]
     
+    if(request.user.is_staff):
+        data["NAVBAR_MENU"] += [{
+            "name": "Report",
+            "url": "/report"
+        }]
+    
     return data
