@@ -1,0 +1,289 @@
+{% extends 'base.html'   %} 
+
+{% block content %}
+<style>
+   .remove-default-btn {
+	background-color: transparent;
+	border: none;
+	box-shadow: none;
+}
+
+.edit-color {
+	color: #333;
+}
+
+.post-link {
+	text-decoration: none;
+}
+
+.post-text {
+	padding-top: 0.5rem;
+}
+
+.post-img {
+	float: left;
+	margin-right: 1rem;
+}
+
+.post-image {
+	max-width: 100%;
+	height: auto;
+	border-radius: 10px;
+	margin-bottom: 10px;
+}
+
+.child-comment {
+	margin-left: 2rem;
+}
+
+.notification-badge {
+	transition: 0.3s;
+}
+
+.notification-badge:hover {
+	cursor: pointer;
+	opacity: 0.75;
+	transition: 0.3s;
+}
+
+.dropdown {
+	position: relative;
+	display: inline-block;
+}
+
+.dropdown-content {
+	position: absolute;
+	background-color: #f1f1f1;
+	min-width: 350px;
+	box-shadow: 0px 8px 8px 0px rgba(0,0,0,0.2)
+	/* z-index: 1;
+	font-size: 0.9rem; */
+}
+
+.dropdown-content a {
+	color: #000;
+	padding: 12px 16px;
+	text-decoration: none;
+	display: block;
+}
+
+.dropdown-content a:hover {
+	background-color: #ddd;
+}
+
+.dropdown-item-parent {
+	position: relative;
+	display: block;
+}
+
+.dropdown-item-close {
+	position: absolute;
+	top: 0;
+	right: 0;
+	font-size: 1.8rem;
+	padding-right: 5px;
+	transition: 0.3s
+}
+
+.dropdown-item-close:hover {
+	color: rgb(180, 25, 25);
+	transition: 0.3s;
+	cursor: pointer;
+}
+</style>
+<div class="container">
+    <div class="row justify-content-center mt-3">
+        <div class="col-md-5 col-sm-12 border-bottom">
+            <h5>Add a Post!</h5>
+        </div>
+    </div>
+
+    <div class="row justify-content-center mt-3 mb-5">
+        <div class="col-md-5 col-sm-12 border-bottom">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form}}
+                <div class="d-grid gap-2">
+                    <button class="btn btn-success mt-3">Submit!</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% for notes in notes_list %}
+    <!-- <div class="row justify-content-center mt-3">
+        <div class="col-md-5 col-sm-12 border-bottom position-relative">
+            <div>
+                <a href="#">
+                    <img class="round-circle post-img" height="30" width="30" src="{{ notes.photo.url }}" />
+                </a>
+                <p class="post-text">
+                    <a class="text-primary post-link" href="#">@{{ notes.user }}</a> {{ notes.created_on }}
+                </p>
+            </div>
+            <div class="position-relative">
+                {% if notes.photo %}
+                  <img src="{{ notes.photo.url }}" class="post-image" />
+                {% endif %}
+                <p>{{ notes.body }}</p>
+                <a href="#" class="stretched-link"></a>
+            </div>
+
+            <div class="d-flex flex-row">
+                <form method="POST" action="#">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.path }}">
+                    <button class="remove-default-btn" type="submit">
+                        <i class="far fa-thumbs-up"> <span>{{ post.likes.all.count }}</span></i>
+                    </button>
+                </form>
+
+                <form method="POST" action="#">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.path }}">
+                    <button class="remove-default-btn" type="submit">
+                        <i class="far fa-thumbs-down"> <span>{{ post.dislikes.all.count }}</span></i>
+                    </button>
+                </form>
+        </div>
+    </div> -->
+    <div class="row justify-content-center mt-3">
+        <figure class="col-md-5 col-sm-12 relative flex flex-col bg-slate-50 rounded-lg p-6 dark:bg-slate-800 dark:highlight-white/5 font-bold">
+            <a href="/notes/{{notes.pk}}/" class="relative">
+                <figcaption class="flex items-center space-x-4">
+                    <div class="flex-auto">
+                        <div class="text-base text-slate-900 font-semibold dark:text-slate-300">
+                            <span class="absolute inset-0 pointer-events-none"></span> {{notes.user}}
+                        </div>
+                        
+                        <div class="mt-0.5">{{notes.created_on}}</div>
+                    </div>
+                </figcaption>
+                <blockquote class="mt-3 text-slate-700 dark:text-slate-300">
+                    <span class="inline-block bg-green-200 rounded px-2 py-1 text-sm font-bold text-slate-700 mr-2 mb-2">{{notes.body}} </span>                
+                    <!-- <p>${course.description}</p> -->
+                    {% if notes.photo %}
+                    <img src="{{ notes.photo.url }}" class="post-image" />
+                    {% endif %}
+                    <!-- ${getPrerequisites(course)} -->
+                </blockquote>
+            </a>
+            <!-- ${admin ? `<i class="fa-solid fa-gear absolute right-5 cursor-pointer hover:text-slate-300" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i><div class="dropdown-menu" aria-labelledby="dropdownMenuButton"><button class="dropdown-item cursor-pointer" onclick="" data-bs-toggle="modal" data-bs-target="#updateModal-${course.id}">Update</button><button class="dropdown-item cursor-pointer" onclick="" data-bs-toggle="modal" data-bs-target="#deleteModal-${course.id}">Delete</button></div>` : ''} -->
+        </figure>
+    </div>
+    {% if notes.vote_status == -1 %}
+    <div class="flex items-center space-x-4">
+        <button class="p-2 border rounded-full hover:bg-gray-100" onclick="updateVote('{{notes.pk}}')">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+            </svg>
+        </button>
+        <span class="text-2xl font-bold">{{notes.score}}</span>
+        <button class="p-2 border rounded-full hover:bg-gray-100" onclick="deleteVote('{{notes.pk}}')">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+        </button>
+    </div>
+    {% elif notes.vote_status == 0 %}
+    <div class="flex items-center space-x-4">
+        <button class="p-2 border rounded-full hover:bg-gray-100" onclick="postVote('{{notes.pk}}', 1)">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+            </svg>
+        </button>
+        <span class="text-2xl font-bold">{{notes.score}}</span>
+        <button class="p-2 border rounded-full hover:bg-gray-100" onclick="postVote('{{notes.pk}}', -1)">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+        </button>
+    </div>
+    {% elif notes.vote_status == 1 %}
+    <div class="flex items-center space-x-4">
+        <button class="p-2 border rounded-full hover:bg-gray-100" onclick="deleteVote('{{notes.pk}}')">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+            </svg>
+        </button>
+        <span class="text-2xl font-bold">{{notes.score}}</span>
+        <button class="p-2 border rounded-full hover:bg-gray-100" onclick="updateVote('{{notes.pk}}')">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+        </button>
+    </div>
+    {% endif %}
+        {% endfor %}
+        
+    </div>
+
+    <script>
+        function getCookie(c_name){
+            if (document.cookie.length > 0)
+            {
+                c_start = document.cookie.indexOf(c_name + "=");
+                if (c_start != -1)
+                {
+                    c_start = c_start + c_name.length + 1;
+                    c_end = document.cookie.indexOf(";", c_start);
+                    if (c_end == -1) c_end = document.cookie.length;
+                    return unescape(document.cookie.substring(c_start,c_end));
+                }
+            }
+            return "";
+        }
+        async function postVote(id, status) {
+            fetch(`/notes/${id}/vote/`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCookie("csrftoken"),
+                },
+                body: JSON.stringify({ status: status }),
+            }).then(async () => {
+                // await refreshNotes()
+                location.reload();
+                callToast("Success", "Berhasil menyimpan data vote")
+            }).catch((error) => {
+                console.log(error)
+                callToast("Error", "Sistem gagal menyimpan data vote")
+            })
+            
+            return false
+        }
+
+        async function deleteVote(id) {
+            console.log("AKWKWKWKW")
+            fetch(`/notes/${id}/vote/`, {
+                method: "DELETE",
+                headers: { "X-CSRFToken": getCookie("csrftoken") },
+            }).then(async () => {
+                // await refreshNotes()
+                location.reload();
+                callToast("Success", "Berhasil menyimpan data vote")
+            }).catch((error) => {
+                console.log(error)
+                callToast("Error", "Sistem gagal menyimpan data vote")
+            })
+        }
+        
+        async function updateVote(id) {
+            fetch(`/notes/${id}/vote/`, {
+                method: "PUT",
+                headers: { "X-CSRFToken": getCookie("csrftoken") },
+            }).then(async () => {
+                // await refreshNotes()
+                location.reload();
+                callToast("Success", "Berhasil menyimpan data vote")
+            }).catch((error) => {
+                console.log(error)
+                callToast("Error", "Sistem gagal menyimpan data vote")
+            })
+        }
+        
+        // $(document).ready(function() {
+        //     refreshCourses()
+        // });
+    </script>
+    {% endblock content %}
