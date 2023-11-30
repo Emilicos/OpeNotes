@@ -5,7 +5,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from notes.models import Notes
-
+from course.models import Course
+from notes.models import Notes, Vote
 # Create your views here.
 class NotesDetailView(APIView):
     permission_classes = []
@@ -31,13 +32,6 @@ class NotesDetailView(APIView):
         notes.delete()
 
         return HttpResponse("BANGGGGG INI DMN")
-
-from course.models import Course
-from course.serializers import CourseSerializer
-from notes.forms import NotesForm
-from notes.models import Notes, Vote
-
-# Create your views here.
 
 class NotesListView(APIView):    
     def post(self, request, id):

@@ -1,6 +1,5 @@
 from django import forms
 from .models import Notes
-from cloudinary.models import CloudinaryField
 
 class NotesForm(forms.ModelForm):
     body = forms.CharField(
