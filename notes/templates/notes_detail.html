@@ -2,6 +2,7 @@
 {% load static %} 
 
 {% block styles %}
+<<<<<<< HEAD
 <style>
     .form input[type="text"], .form input[type="number"], .form textarea, .form select {
         background-color: #334155;
@@ -179,5 +180,12 @@
         $('.toast').toast('show')
     }
 </script>
+=======
+{% endblock styles %}
+
+{% block content %}
+<h1> {{notes.user}} </h1>
+<h1> {{notes.body}} </h1>
+>>>>>>> 6b79ce646afe8780f508c6f6fde1381584d4f5c5
 
 {% endblock content %}
