@@ -9,10 +9,6 @@ from cloudinary.models import CloudinaryField
 class Notes(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
-<<<<<<< HEAD
-    title = models.CharField(max_length=255, default="")
-    description = models.TextField(default="")
-=======
     body = models.TextField()
     created_on = models.DateTimeField(default=timezone.now)
     parent = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
@@ -48,7 +44,6 @@ class Vote(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     notes = models.ForeignKey(Notes, on_delete=models.CASCADE)
     status = models.IntegerField(choices=VOTE_STATUS)
->>>>>>> 6b79ce646afe8780f508c6f6fde1381584d4f5c5
 
     def __str__(self):
         return f"{self.user.username} voted {self.get_status_display()} for {self.notes.description}"

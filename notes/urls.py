@@ -15,20 +15,12 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.urls import path
-<<<<<<< HEAD
-from notes.views import *
-
-urlpatterns = [
-    path('<str:id>/', NotesDetailView.as_view()),
-]
-=======
 
 from course.views import CourseDetailView, CourseListView
 from notes.views import NotesListView, DetailNotesView, VoteView
 
 urlpatterns = [
-    path("<str:id>/",NotesListView.as_view()),
+    path("<str:id>/", NotesListView.as_view()),
     path("<str:id1>/<str:id2>/", DetailNotesView.as_view()),
     path("<str:id1>/<str:id2>/vote/", VoteView.as_view())
 ]
->>>>>>> 6b79ce646afe8780f508c6f6fde1381584d4f5c5

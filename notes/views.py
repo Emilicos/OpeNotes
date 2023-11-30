@@ -1,15 +1,9 @@
-<<<<<<< HEAD
 from django.http import Http404, HttpResponseForbidden, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
-=======
-from django.http import Http404, HttpResponse
-from django.shortcuts import render
->>>>>>> 6b79ce646afe8780f508c6f6fde1381584d4f5c5
 from rest_framework import status
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
-<<<<<<< HEAD
 from rest_framework.permissions import IsAuthenticated
 
 from notes.models import Notes
@@ -39,7 +33,6 @@ class NotesDetailView(APIView):
         notes.delete()
 
         return HttpResponse("BANGGGGG INI DMN")
-=======
 
 from course.models import Course
 from course.serializers import CourseSerializer
@@ -67,27 +60,13 @@ class NotesListView(APIView):
         return render(request, 'notes_list.html', context)
         # return render(request, 'coba.html', context)
         
-    def post(self, request):
+    def post(self, request, id):
         print(request.data)
-        course = Course.objects.get(pk=1)
+        course = Course.objects.get(pk=id)
         notes = Notes(user=request.user, course=course, body=request.data['isi'], photo=request.data['file'])
         notes.save()
-        # notes_list = Notes.objects.all()
-        # form = NotesForm(request.POST, request.FILES)
         
-        # if form.is_valid():
-        #     new_notes = form.save(commit=False)
-        #     new_notes.user = request.user
-        #     new_course = Course.objects.create(name="AAA",code="AAA")
-        #     new_notes.course = new_course
-        #     new_notes.save()
-
-        # context = {
-        #     'notes_list': notes_list,
-        #     'form': form,
-        # }
-        
-        return HttpResponse("notes berhasil dibuat oh yeah")
+        return HttpResponse("Notes berhasil dibuat")
             
 
 class DetailNotesView(APIView):
@@ -143,4 +122,3 @@ class VoteView(APIView):
             return Response({'message': 'Note not found'}, status=status.HTTP_404_NOT_FOUND)
         except Vote.DoesNotExist:
             return Response({'message': 'Vote not found'}, status=status.HTTP_404_NOT_FOUND)
->>>>>>> 6b79ce646afe8780f508c6f6fde1381584d4f5c5
