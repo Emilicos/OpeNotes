@@ -6,7 +6,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 
-from notes.models import Notes
+from course.models import Course
+from course.serializers import CourseSerializer
+from notes.forms import NotesForm, AddToFavoritesForm
+from notes.models import Notes, Vote
+from folder_favorite.models import FolderFavorite, FolderNotes
 
 # Create your views here.
 class NotesDetailView(APIView):
@@ -34,12 +38,6 @@ class NotesDetailView(APIView):
 
         return HttpResponse("BANGGGGG INI DMN")
 
-from course.models import Course
-from course.serializers import CourseSerializer
-from notes.forms import NotesForm
-from notes.models import Notes, Vote
-
-# Create your views here.
 
 class NotesListView(APIView):
     def get(self, request, id):
@@ -92,10 +90,14 @@ class DetailNotesView(APIView):
             else:
                 vote_status = 0
             child.vote_status = vote_status
+
+        form = AddToFavoritesForm(request.user)
+
         context = {
             'notes': notes,
             'children': children,
             'id_course': notes.course.id,
+            'form': form
         }
         return render(request, 'notes_detail.html', context)
     
@@ -153,3 +155,20 @@ class VoteView(APIView):
             return Response({'message': 'Note not found'}, status=status.HTTP_404_NOT_FOUND)
         except Vote.DoesNotExist:
             return Response({'message': 'Vote not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class AddNotesToFavoriteView(APIView):
+    def post(self, request, id1, id2):
+        folder_ids = request.data.getlist('folders')
+
+        notes = Notes.objects.get(id=id2)
+        for id in folder_ids:
+            try:
+                folder = FolderFavorite.objects.get(id=id)
+                FolderNotes.objects.get(folder=folder,
+                                        notes=notes)
+            except FolderNotes.DoesNotExist:
+                FolderNotes.objects.create(folder=folder,
+                                           notes=notes)
+            
+        return Response({'message': "Berhasil Menyimpan ke Favorit"}, status=status.HTTP_200_OK)
