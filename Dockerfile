@@ -1,5 +1,5 @@
 # Base Image  
-FROM python:3.10.6
+FROM python:3.7.4-alpine3.10
 
 # Set an environment variable to indicate the working directory
 ENV PYTHONUNBUFFERED 1
