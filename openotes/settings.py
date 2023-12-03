@@ -28,10 +28,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 
-PRODUCTION = os.getenv("PRODUCTION")
+PRODUCTION = os.getenv("PRODUCTION") == "True"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = not PRODUCTION == "True" if PRODUCTION is not None else False
+DEBUG = not PRODUCTION
 
 ALLOWED_HOSTS = ["*"]
 
