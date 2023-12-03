@@ -30,5 +30,3 @@ ENV VIRTUAL_ENV /env
 ENV PATH /env/bin:$PATH
 
 EXPOSE 8000
-
-CMD ["sh", "-c", "until pg_isready -h db; do sleep 1; done && gunicorn --bind :8000 --workers 3 openotes.wsgi:application"]
