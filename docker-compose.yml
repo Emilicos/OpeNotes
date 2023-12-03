@@ -13,8 +13,8 @@ services:
       - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
   web:
     build: .
-    command: "python manage.py makemigrations && python manage.py migrate && python manage.py collectstatic --no-input && gunicorn -b 0.0.0.0:8000 -w 4 openotes.wsgi:application"
-    container_name: OpeNotes
+    command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py collectstatic --no-input && python manage.py runserver 0.0.0.0:8000"
+    container_name: Berg
     volumes:
       - .:/app
     ports:
