@@ -26,6 +26,8 @@ RUN set -ex \
     && apk add --virtual rundeps $runDeps \
     && apk del .build-deps
 
+RUN apk add --no-cache bash
+
 ENV VIRTUAL_ENV /env
 ENV PATH /env/bin:$PATH
 
