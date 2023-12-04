@@ -23,4 +23,4 @@ RUN pip install -r requirements.txt
 EXPOSE 8000  
 
 # start server  
-CMD python manage.py runserver  
+CMD gunicorn -b 0.0.0.0:8000 -w 4 openotes.wsgi:application
