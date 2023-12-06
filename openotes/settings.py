@@ -34,6 +34,7 @@ PRODUCTION = os.getenv("PRODUCTION") == "True"
 DEBUG = not PRODUCTION
 
 ALLOWED_HOSTS = ["*"]
+CSRF_TRUSTED_ORIGINS = ['https://openotes.net']
 
 # Application definition
 
