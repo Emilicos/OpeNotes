@@ -100,26 +100,26 @@
             document.getElementById("folderFavoriteContainer").innerHTML = ""
             let DOM = ""
 
-            folders.forEach((data) => {
+            folders.forEach((folder) => {
                 DOM += `
                 <figure class="relative flex flex-col bg-slate-50 rounded-lg p-6 dark:bg-slate-800 dark:highlight-white/5 font-bold">
-                    <a href="/favorite/${data.object.id}/" class="relative">
+                    <a href="/favorite/${folder.id}/" class="relative">
                         <figcaption class="flex items-center space-x-4">
                             <div class="flex-auto">
-                                <div class="mt-0.5">${data.object.nama}</div>
+                                <div class="mt-0.5">${folder.nama}</div>
                             </div>
                         </figcaption>
                         <blockquote class="mt-3 text-slate-700 dark:text-slate-300">
-                            <p>${data.notes_count} notes</p>
+                            <p>${folder.notes_count} notes</p>
                         </blockquote>
                     </a>
                     <i class="fa-solid fa-gear absolute right-5 cursor-pointer hover:text-slate-300" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <button class="dropdown-item cursor-pointer" onclick="" data-bs-toggle="modal" data-bs-target="#updateModal-${data.object.id}">Update</button>
-                        <button class="dropdown-item cursor-pointer" onclick="" data-bs-toggle="modal" data-bs-target="#deleteModal-${data.object.id}">Delete</button>
+                        <button class="dropdown-item cursor-pointer" onclick="" data-bs-toggle="modal" data-bs-target="#updateModal-${folder.id}">Update</button>
+                        <button class="dropdown-item cursor-pointer" onclick="" data-bs-toggle="modal" data-bs-target="#deleteModal-${folder.id}">Delete</button>
                     </div>
                 </figure>
-                <form class="modal fade" method="put" onsubmit="return false;" id="updateModal-${data.object.id}" tabindex="-1" role="dialog" aria-labelledby="updatemodalTitle" aria-hidden="true">
+                <form class="modal fade" method="put" onsubmit="return false;" id="updateModal-${folder.id}" tabindex="-1" role="dialog" aria-labelledby="updatemodalTitle" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered" role="document">
                     <div class="modal-content bg-[#272B52]">
                         <div class="modal-header border-b-0">
@@ -133,12 +133,12 @@
                         </div>
                         <div class="modal-footer border-t-0">
                         <button type="button" class="bg-rose-500 flex-auto shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-rose-600 dark:hover:bg-rose-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-300 dark:focus:ring-offset-slate-900 dark:focus:ring-rose-700" data-bs-dismiss="modal">Batal</button>
-                        <button type="button" class="bg-green-500 flex-auto shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-green-600 dark:hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-300 dark:focus:ring-offset-slate-900 dark:focus:ring-green-700" onclick="updateFolderFavorite(${data.object.id})">Simpan</button>
+                        <button type="button" class="bg-green-500 flex-auto shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-green-600 dark:hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-300 dark:focus:ring-offset-slate-900 dark:focus:ring-green-700" onclick="updateFolderFavorite(${folder.id})">Simpan</button>
                         </div>
                     </div>
                     </div>
                 </form>
-                <form class="modal fade" method="delete" onsubmit="return false;" id="deleteModal-${data.object.id}" tabindex="-1" role="dialog" aria-labelledby="deletemodalTitle" aria-hidden="true">
+                <form class="modal fade" method="delete" onsubmit="return false;" id="deleteModal-${folder.id}" tabindex="-1" role="dialog" aria-labelledby="deletemodalTitle" aria-hidden="true">
                     {% csrf_token %}
                     <div class="modal-dialog modal-dialog-centered" role="document">
                     <div class="modal-content bg-[#272B52]">
@@ -153,7 +153,7 @@
                         </div>
                         <div class="modal-footer border-t-0">
                         <button type="button" class="bg-rose-500 flex-auto shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-rose-600 dark:hover:bg-rose-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-300 dark:focus:ring-offset-slate-900 dark:focus:ring-rose-700" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="bg-green-500 flex-auto shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-green-600 dark:hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-300 dark:focus:ring-offset-slate-900 dark:focus:ring-green-700" onclick="deleteFolderFavorite(${data.object.id})">Yakin</button>
+                        <button type="submit" class="bg-green-500 flex-auto shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-green-600 dark:hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-300 dark:focus:ring-offset-slate-900 dark:focus:ring-green-700" onclick="deleteFolderFavorite(${folder.id})">Yakin</button>
                         </div>
                     </div>
                     </div>

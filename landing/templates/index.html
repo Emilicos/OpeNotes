@@ -2,6 +2,17 @@
 {% load static %} 
 
 {% block styles %}
+<style>
+  .try-center {
+    text-align: center !important;
+}
+
+  @media (min-width:768px)  { 
+      .try-center {
+          text-align: left !important;
+      }
+  }
+</style>
 {% endblock styles %}
 
 {% block content %}
@@ -9,15 +20,17 @@
   Add something here, up to you
 {% endcomment %}
 
-<div class = "flex gap-x-8 px-16 items-center aspect-[2/1] my-auto">
-  <div class = "flex flex-col gap-y-10 mx-auto justify-center my-auto w-1/2">
-    <p class = "text-[#23A6F0] font-bold"> Notes for CS UI Students </p>
-    <h1 class = "font-bold text-4xl"> OpeNotes </h1>
-    <p class="tracking-wide"> Kamu pernah merasa frustrasi tidak mencatat pelajaran mata kuliah dan tertinggal?
+<div class = "flex md:flex-row flex-col gap-8 md:px-16 py-16 items-center try-center aspect-[2/1] my-auto">
+  <div class = "flex flex-col gap-y-10 justify-center my-auto w-1/2">
+    <p class = "try-center text-[#23A6F0] font-bold"> Notes for CS UI Students </p>
+    <h1 class = "try-center font-bold md:text-4xl text-3xl"> OpeNotes </h1>
+    <p class="tracking-wide font-inter text-justify"> Kamu pernah merasa frustrasi tidak mencatat pelajaran mata kuliah dan tertinggal?
       Gausah takut lagi! OpeNotes hadir untuk kamu yang ingin melihat maupun menambahkan catatan yang kalian buat!
       Dengan OpeNotes, peluang kamu dapat <span class="text-sky-400 font-bold"> cumlaude </span> akan makin besar! </p>
-    <button type="button" class="bg-sky-500 flex-auto shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-sky-600 dark:hover:bg-sky-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-300 dark:focus:ring-offset-slate-900 dark:focus:ring-sky-700 w-fit">Login</button>
+    <div class = "flex sm:flex-row gap-6 flex-col">
+      <a href = "/course/" class="bg-green-500 flex-auto shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-green-600 dark:hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-300 dark:focus:ring-offset-slate-900 dark:focus:ring-green-700 text-center md:w-fit">Periska Mata Kuliah ></a>
+    </div>
   </div>
-  <img src="{% static '/media/Hero.png' %}" class="w-1/2"/>
+  <img src="{% static '/media/Hero.png' %}" class="relative md:w-1/2 md:flex hidden"/>
 </div>
 {% endblock content %}
