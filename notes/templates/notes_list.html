@@ -112,9 +112,12 @@
 {% block content %}
 <div aria-live="polite" id = "toast-placement" aria-atomic="true" style="position: relative" class="font-bold z-[50]"></div>
 <div class="container">
+
+{% if request.user.is_authenticated %}
 <div class="w-full text-right flex justify-end">
     <button type="button" class="bg-green-500 flex shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-green-600 dark:hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-300 dark:focus:ring-offset-slate-900 dark:focus:ring-green-700" data-bs-toggle="modal" data-bs-target="#createModal">Create Notes</button>
 </div>
+{% endif %}
 
 <form method="post" onsubmit="return false;" class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-labelledby="createModalTitle" aria-hidden="true">
     {% csrf_token %}
@@ -131,7 +134,10 @@
                 <label for="id_name">Isi:</label>
                 <textarea name="isi" required></textarea>
             </p>
-            <input type="file" id="file" name="file" accept=".jpg, .jpeg, .png">
+            <p>
+                <label for="file">Upload file (harus dalam format .jpg, .jpeg, .png)</label>
+                <input type="file" id="file" name="file" accept=".jpg, .jpeg, .png">
+            </p>
         </div>
         <div class="modal-footer border-t-0">
           <button type="button" data-bs-dismiss="modal" class="bg-rose-500 flex-auto shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-rose-600 dark:hover:bg-rose-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-300 dark:focus:ring-offset-slate-900 dark:focus:ring-rose-700" data-dismiss="modal">Batal</button>
@@ -142,11 +148,17 @@
   </div>
 </form>
 
-
+<div class="text-center">
+    <p class="display-5"><strong>Mata kuliah:</strong> {{course.name}}</p>
+  </div>
     {% for notes in notes_list %}
     <div class="row justify-content-center mt-3">
-        <figure class="col-xl-6 col-sm-12 relative flex flex-col bg-slate-50 rounded-lg p-6 dark:bg-slate-800 dark:highlight-white/5 font-bold">
-            <!-- <a href="/notes/{{notes.pk}}/" class="relative"> -->
+        <figure class="col-xl-7 col-sm-12 relative flex flex-col bg-slate-50 rounded-lg p-6 dark:bg-slate-800 dark:highlight-white/5 font-bold">
+            <a href="/course/notes/{{id_course}}/{{notes.id}}">
+            <div class="w-full text-right flex justify-end">
+                <button type="button" class="bg-blue-500 flex shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-blue-600 dark:hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-300 dark:focus:ring-offset-slate-900 dark:focus:ring-blue-700">Open Notes Detail</button>
+            </div>
+            </a>
                 <figcaption class="flex items-center space-x-4">
                     <div class="flex-auto">
                         <div class="text-base text-slate-900 font-semibold dark:text-slate-300">
@@ -164,52 +176,41 @@
                     <img src="{{ notes.photo.url }}" class="post-image mx-auto" />
                     {% endif %}
                     <!-- ${getPrerequisites(course)} -->
+                    <br><br>
                     {% if notes.vote_status == -1 %}
                     <div class="flex items-center space-x-4">
-                        <button class="p-2 border rounded-full hover:bg-gray-100" onclick="updateVote('{{notes.pk}}')">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
-                            </svg>
+                        <button class="p-2 border rounded-full bg-green-800 hover:bg-green-600 dark:hover:bg-green-400" onclick="updateVote('{{notes.pk}}')">
+                            👍
                         </button>
                         <span class="text-2xl font-bold">{{notes.score}}</span>
-                        <button class="p-2 border rounded-full hover:bg-gray-100" onclick="deleteVote('{{notes.pk}}')">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                            </svg>
+                        <button class="p-2 border rounded-full bg-red-600 hover:bg-red-500 dark:hover:bg-red-400" onclick="deleteVote('{{notes.pk}}')">
+                            👎
                         </button>
                     </div>
                     {% elif notes.vote_status == 0 %}
                     <div class="flex items-center space-x-4">
-                        <button class="p-2 border rounded-full hover:bg-gray-100" onclick="postVote('{{notes.pk}}', 1)">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
-                            </svg>
+                        <button class="p-2 border rounded-full bg-green-800 hover:bg-green-600 dark:hover:bg-green-400" onclick="postVote('{{notes.pk}}', 1)">
+                            👍
                         </button>
                         <span class="text-2xl font-bold">{{notes.score}}</span>
-                        <button class="p-2 border rounded-full hover:bg-gray-100" onclick="postVote('{{notes.pk}}', -1)">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                            </svg>
+                        <button class="p-2 border rounded-full bg-red-800 hover:bg-red-600 dark:hover:bg-red-400" onclick="postVote('{{notes.pk}}', -1)">
+                            👎
                         </button>
                     </div>
                     {% elif notes.vote_status == 1 %}
                     <div class="flex items-center space-x-4">
-                        <button class="p-2 border rounded-full hover:bg-gray-100" onclick="deleteVote('{{notes.pk}}')">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
-                            </svg>
+                        <button class="p-2 border rounded-full bg-green-600 hover:bg-green-500 dark:hover:bg-green-400" onclick="deleteVote('{{notes.pk}}')">
+                            👍
                         </button>
                         <span class="text-2xl font-bold">{{notes.score}}</span>
-                        <button class="p-2 border rounded-full hover:bg-gray-100" onclick="updateVote('{{notes.pk}}')">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                            </svg>
+                        <button class="p-2 border rounded-full bg-red-800 hover:bg-red-600 dark:hover:bg-red-400" onclick="updateVote('{{notes.pk}}')">
+                            👎
                         </button>
                     </div>
+                    
                     {% endif %}
                 
                 </blockquote>
-            </a>
             <!-- ${admin ? `<i class="fa-solid fa-gear absolute right-5 cursor-pointer hover:text-slate-300" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i><div class="dropdown-menu" aria-labelledby="dropdownMenuButton"><button class="dropdown-item cursor-pointer" onclick="" data-bs-toggle="modal" data-bs-target="#updateModal-${course.id}">Update</button><button class="dropdown-item cursor-pointer" onclick="" data-bs-toggle="modal" data-bs-target="#deleteModal-${course.id}">Delete</button></div>` : ''} -->
         </figure>
     </div>
@@ -235,16 +236,13 @@
 
     function createNotes() {
         console.log(new FormData(document.querySelector('#createModal')))
-        fetch(`/notes/`, {
+        fetch(`/course/notes/{{id_course}}/`, {
             method: "POST",
             body: new FormData(document.querySelector('#createModal'))
         }).then(res => {
           if(res.ok == true){
             callToast("Success", "Berhasil membuat Notes")
-            var link = document.createElement("a");
-            link.href = `/notes/`;
-            console.log(link.href)
-            link.click();
+            location.reload()
           }
           else
             callToast("Error", "Sistem gagal menyimpan Notes")

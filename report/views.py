@@ -33,8 +33,16 @@ class LaporanDetailView(APIView):
     def get(self, request, id):
         self.permission_classes = [IsAdminUser]
         laporan = Laporan.objects.get(id=id)
+        id1 = laporan.terlapor.course.id
+        id2 = laporan.terlapor.id
 
-        return render(request, "laporan_detail.html", {"laporan": laporan})
+        context = {
+            'laporan': laporan,
+            'id1': id1,
+            'id2': id2,
+        }
+
+        return render(request, "laporan_detail.html", context)
 
 class LaporanValid(APIView):
     permission_classes = []
