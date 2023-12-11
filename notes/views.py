@@ -58,7 +58,7 @@ class DetailNotesView(APIView):
     
     def delete(self, request, id1, id2):
         notes = Notes.objects.get(pk=id2)
-        if notes.user != request.user:
+        if notes.user != request.user and not request.user.is_staff:
             return HttpResponseForbidden("Anda tidak boleh menghapus Notes ini")
 
         notes.delete()
