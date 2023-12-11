@@ -385,10 +385,17 @@
                 "X-CSRFToken": getCookie("csrftoken"),
             },
             body: JSON.stringify({ status: status }),
-        }).then(async () => {
+        }).then(res => {
             // await refreshcourse/Notes({{id_course}}/)
-            location.reload();
-            callToast("Success", "Berhasil menyimpan data vote")
+            if(res.ok == true){
+                callToast("Success", "Berhasil menyimpan data vote")
+                setTimeout(function() {
+                    location.reload();
+                }, 1000);
+            }
+            else{
+                callToast("Error", "Sistem gagal menyimpan data vote")
+            }
         }).catch((error) => {
             console.log(error)
             callToast("Error", "Sistem gagal menyimpan data vote")
@@ -402,10 +409,17 @@
         fetch(`/course/notes/{{id_course}}/${id}/vote/`, {
             method: "DELETE",
             headers: { "X-CSRFToken": getCookie("csrftoken") },
-        }).then(async () => {
+        }).then(res => {
             // await refreshcourse/Notes({{id_course}}/)
-            location.reload();
-            callToast("Success", "Berhasil menyimpan data vote")
+            if(res.ok == true){
+                callToast("Success", "Berhasil menyimpan data vote")
+                setTimeout(function() {
+                    location.reload();
+                }, 1000);
+            }
+            else{
+                callToast("Error", "Sistem gagal menyimpan data vote")
+            }
         }).catch((error) => {
             console.log(error)
             callToast("Error", "Sistem gagal menyimpan data vote")
@@ -416,10 +430,17 @@
         fetch(`/course/notes/{{id_course}}/${id}/vote/`, {
             method: "PUT",
             headers: { "X-CSRFToken": getCookie("csrftoken") },
-        }).then(async () => {
-            // await refreshNotes()
-            location.reload();
-            callToast("Success", "Berhasil menyimpan data vote")
+        }).then(res => {
+            // await refreshcourse/Notes({{id_course}}/)
+            if(res.ok == true){
+                callToast("Success", "Berhasil menyimpan data vote")
+                setTimeout(function() {
+                    location.reload();
+                }, 1000);
+            }
+            else{
+                callToast("Error", "Sistem gagal menyimpan data vote")
+            }
         }).catch((error) => {
             console.log(error)
             callToast("Error", "Sistem gagal menyimpan data vote")
