@@ -27,4 +27,5 @@ class AddToFavoritesForm(forms.Form):
 
     def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['folders'].queryset = FolderFavorite.objects.filter(user=user)
+        if user.is_authenticated:
+            self.fields['folders'].queryset = FolderFavorite.objects.filter(user=user)
