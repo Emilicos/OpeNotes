@@ -1,15 +1,9 @@
-<<<<<<< HEAD
 from django.http import Http404, HttpResponseForbidden, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
-=======
-from django.http import Http404, HttpResponse
-from django.shortcuts import render
->>>>>>> 6b79ce646afe8780f508c6f6fde1381584d4f5c5
 from rest_framework import status
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
-<<<<<<< HEAD
 from rest_framework.permissions import IsAuthenticated
 
 from notes.models import Notes
@@ -39,7 +33,6 @@ class NotesDetailView(APIView):
         notes.delete()
 
         return HttpResponse("BANGGGGG INI DMN")
-=======
 
 from course.models import Course
 from course.serializers import CourseSerializer
@@ -143,4 +136,3 @@ class VoteView(APIView):
             return Response({'message': 'Note not found'}, status=status.HTTP_404_NOT_FOUND)
         except Vote.DoesNotExist:
             return Response({'message': 'Vote not found'}, status=status.HTTP_404_NOT_FOUND)
->>>>>>> 6b79ce646afe8780f508c6f6fde1381584d4f5c5
