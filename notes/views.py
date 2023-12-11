@@ -69,6 +69,8 @@ class DetailNotesView(APIView):
 class VoteView(APIView):
     def post(self, request, id1, id2):
         try:
+            if(request.user.is_anonymous):
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
             user = request.user
             note = Notes.objects.get(id=id2)
             status_value = request.data.get('status', None)
@@ -83,6 +85,8 @@ class VoteView(APIView):
         
     def put(self, request, id1, id2):
         try:
+            if(request.user.is_anonymous):
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
             user = request.user
 
             existing_vote = Vote.objects.get(user=user, notes__id=id2)
@@ -99,6 +103,8 @@ class VoteView(APIView):
 
     def delete(self, request, id1, id2):
         print("MASUK GAK")
+        if(request.user.is_anonymous):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
         user = request.user
 
         try:

@@ -334,7 +334,7 @@
           if(res.ok == true){
             callToast("Success", "Berhasil menghapus Notes")
             setTimeout(function() {
-            window.location.href =  "/course/{{id_course}}"
+                window.location.href =  "/course/{{id_course}}"
             }, 1000);
           }
           else{
@@ -360,7 +360,9 @@
         }).then(res => {
           if(res.ok == true){
             callToast("Success", "Berhasil mengirim Notes reply")
-            location.reload()
+            setTimeout(function() {
+                location.reload()
+            }, 1000);
           }
           else
             callToast("Error", "Sistem gagal menyimpan Notes reply")
