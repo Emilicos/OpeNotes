@@ -25,20 +25,24 @@
 <div aria-live="polite" id = "toast-placement" aria-atomic="true" style="position: relative" class="font-bold z-[50]"></div>
 
 
-<div class="row justify-content-center mt-3">
+<div class="row justify-content-center mt-3 ">
   <figure class="col-xl-9 col-sm-12 relative flex flex-col bg-slate-50 rounded-lg p-6 dark:bg-slate-800 dark:highlight-white/5 font-bold">
         <div class="w-full text-right flex justify-end">
-          {% if request.user.is_authenticated %}
-              <button type="button" class="bg-blue-500 flex shadow text-white rounded-md text-sm border-y border-transparent py-2 px-3 mr-2 font-bold hover:bg-blue-600 dark:hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-300 dark:focus:ring-offset-slate-900 dark:focus:ring-blue-700" data-bs-toggle="modal" data-bs-target="#replyModal">Reply Notes</button>
-          {% endif %}
-
-          {% if request.user.is_authenticated %}
-              <button type="button" class="bg-orange-500 flex shadow text-white rounded-md text-sm border-y border-transparent py-2 px-3 mr-2 font-bold hover:bg-orange-600 dark:hover:bg-orange-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-300 dark:focus:ring-offset-slate-900 dark:focus:ring-orange-700" data-bs-toggle="modal" data-bs-target="#reportModal">Report Notes</button>
-          {% endif %}
-          
-          {% if request.user == notes.user %}
-              <button type="button" class="bg-rose-500 flex shadow text-white rounded-md text-sm border-y border-transparent py-2 px-3 font-bold hover:bg-rose-600 dark:hover:bg-rose-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-300 dark:focus:ring-offset-slate-900 dark:focus:ring-green-700" data-bs-toggle="modal" data-bs-target="#deleteModal">Delete Notes</button>
-          {% endif %}
+            {% if request.user.is_authenticated %}
+                <button type="button" class="bg-yellow-500 flex shadow text-white rounded-md text-sm border-y border-transparent py-2 px-3 mr-2 font-bold hover:bg-blue-600 dark:hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-300 dark:focus:ring-offset-slate-900 dark:focus:ring-blue-700" data-bs-toggle="modal" data-bs-target="#saveFavoriteModal">Save to Favorites</button>
+            {% endif %}
+            
+            {% if request.user.is_authenticated %}
+                <button type="button" class="bg-blue-500 flex shadow text-white rounded-md text-sm border-y border-transparent py-2 px-3 mr-2 font-bold hover:bg-blue-600 dark:hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-300 dark:focus:ring-offset-slate-900 dark:focus:ring-blue-700" data-bs-toggle="modal" data-bs-target="#replyModal">Reply Notes</button>
+            {% endif %}
+            
+            {% if request.user.is_authenticated %}
+                <button type="button" class="bg-orange-500 flex shadow text-white rounded-md text-sm border-y border-transparent py-2 px-3 mr-2 font-bold hover:bg-orange-600 dark:hover:bg-orange-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-300 dark:focus:ring-offset-slate-900 dark:focus:ring-orange-700" data-bs-toggle="modal" data-bs-target="#reportModal">Report Notes</button>
+            {% endif %}
+            
+            {% if request.user == notes.user %}
+                <button type="button" class="bg-rose-500 flex shadow text-white rounded-md text-sm border-y border-transparent py-2 px-3 font-bold hover:bg-rose-600 dark:hover:bg-rose-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-300 dark:focus:ring-offset-slate-900 dark:focus:ring-green-700" data-bs-toggle="modal" data-bs-target="#deleteModal">Delete Notes</button>
+            {% endif %}
       </div>
           <figcaption class="flex items-center space-x-4">
               <div class="flex-auto">
@@ -163,6 +167,29 @@
       <br>
       {% endfor %}
 
+<form method="post" onsubmit="return false;" class="modal fade" id="saveFavoriteModal" tabindex="-1" role="dialog" aria-labelledby="saveFavoriteModalTitle" aria-hidden="true">
+    {% csrf_token %}
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content bg-[#272B52]">
+        <div class="modal-header border-b-0">
+          <h5 class="font-bold" id="exampleModalLongTitle">Save to Favorites</h5>
+          <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body flex flex-col form gap-y-6">
+            {{form.as_p}}
+        </div>
+        <div class="modal-footer border-t-0">
+          <button type="button" data-bs-dismiss="modal" class="bg-rose-500 flex-auto shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-rose-600 dark:hover:bg-rose-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-300 dark:focus:ring-offset-slate-900 dark:focus:ring-rose-700" data-dismiss="modal">Batal</button>
+          <button type="submit" data-bs-dismiss="modal" id = "button_save_favorite" class="bg-green-500 flex-auto shadow text-white rounded-md text-sm border-y border-transparent py-2 font-bold px-3 hover:bg-green-600 dark:hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-300 dark:focus:ring-offset-slate-900 dark:focus:ring-green-700">Simpan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+    
+
   <form method="post" onsubmit="return false;" class="modal fade" id="replyModal" tabindex="-1" role="dialog" aria-labelledby="replyModalTitle" aria-hidden="true">
     {% csrf_token %}
     <div class="modal-dialog modal-dialog-centered" role="document">
@@ -260,6 +287,21 @@
         }
         return "";
     }
+
+    async function saveToFavorite() {
+        fetch(`/course/notes/{{notes.course.id}}/{{notes.id}}/favorite/`, {
+            method: "POST",
+            body: new FormData(document.querySelector('#saveFavoriteModal'))
+        }).then(async () => {
+            callToast("Success", "Berhasil menyimpan ke folder favorite")
+        }).catch((error) => {
+            console.log(error)
+            callToast("Error", "Gagal menyimpan ke folder favorite")
+        })
+        
+        return false
+    }
+    document.getElementById("button_save_favorite").onclick = saveToFavorite
 
     function reportNotes() {
         console.log(new FormData(document.querySelector('#reportModal')))

@@ -1,6 +1,6 @@
 from django import forms
 from .models import Notes
-from cloudinary.models import CloudinaryField
+from folder_favorite.models import FolderFavorite
 
 class NotesForm(forms.ModelForm):
     body = forms.CharField(
@@ -17,3 +17,14 @@ class NotesForm(forms.ModelForm):
         model = Notes
         fields = ['body','image']
     
+
+class AddToFavoritesForm(forms.Form):
+    folders = forms.ModelMultipleChoiceField(
+        queryset=FolderFavorite.objects.none(),
+        widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-checkbox mr-2 leading-tight'}),
+        label="Pilih folder"
+    )
+
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['folders'].queryset = FolderFavorite.objects.filter(user=user)

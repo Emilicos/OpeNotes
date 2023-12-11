@@ -1,12 +1,14 @@
-from django.http import Http404, HttpResponseForbidden, HttpResponse, HttpResponseRedirect
-from django.shortcuts import render, redirect
+from django.http import Http404, HttpResponseForbidden, HttpResponse
+from django.shortcuts import render
 from rest_framework import status
-from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
 
-from notes.models import Notes
+from course.models import Course
+from course.serializers import CourseSerializer
+from notes.forms import NotesForm, AddToFavoritesForm
+from notes.models import Notes, Vote
+from folder_favorite.models import FolderFavorite, FolderNotes
 
 # Create your views here.
 class NotesDetailView(APIView):
@@ -34,38 +36,7 @@ class NotesDetailView(APIView):
 
         return HttpResponse("BANGGGGG INI DMN")
 
-from course.models import Course
-from course.serializers import CourseSerializer
-from notes.forms import NotesForm
-from notes.models import Notes, Vote
-
-# Create your views here.
-
-class NotesListView(APIView):
-    def get(self, request, id):
-        course = Course.objects.get(pk=id)
-        course_notes = Notes.objects.filter(course=course)
-        notes_list = course_notes.order_by('-created_on')
-        
-        for notes in notes_list:
-            if request.user.is_authenticated:
-                vote_status = Vote.objects.filter(user=request.user, notes=notes).values_list('status', flat=True).first() or 0
-            
-            else:
-                vote_status = 0
-            notes.vote_status = vote_status
-            
-        form = NotesForm()
-        context = {
-            'notes_list': notes_list,
-            'form': form,
-            'id_course': id,
-            'course': course,
-        }
-        
-        return render(request, 'notes_list.html', context)
-        # return render(request, 'coba.html', context)
-        
+class NotesListView(APIView):    
     def post(self, request, id):
         print(request.data)
         course = Course.objects.get(pk=id)
@@ -73,7 +44,6 @@ class NotesListView(APIView):
         notes.save()
         
         return HttpResponse("Notes berhasil dibuat")
-            
 
 class DetailNotesView(APIView):
     def get(self, request, id1, id2):
@@ -92,10 +62,14 @@ class DetailNotesView(APIView):
             else:
                 vote_status = 0
             child.vote_status = vote_status
+
+        form = AddToFavoritesForm(request.user)
+
         context = {
             'notes': notes,
             'children': children,
             'id_course': notes.course.id,
+            'form': form
         }
         return render(request, 'notes_detail.html', context)
     
@@ -153,3 +127,20 @@ class VoteView(APIView):
             return Response({'message': 'Note not found'}, status=status.HTTP_404_NOT_FOUND)
         except Vote.DoesNotExist:
             return Response({'message': 'Vote not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class AddNotesToFavoriteView(APIView):
+    def post(self, request, id1, id2):
+        folder_ids = request.data.getlist('folders')
+
+        notes = Notes.objects.get(id=id2)
+        for id in folder_ids:
+            try:
+                folder = FolderFavorite.objects.get(id=id)
+                FolderNotes.objects.get(folder=folder,
+                                        notes=notes)
+            except FolderNotes.DoesNotExist:
+                FolderNotes.objects.create(folder=folder,
+                                           notes=notes)
+            
+        return Response({'message': "Berhasil Menyimpan ke Favorit"}, status=status.HTTP_200_OK)

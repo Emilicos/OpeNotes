@@ -1,4 +1,3 @@
-from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import render, redirect
 from rest_framework import status
 from rest_framework.permissions import IsAdminUser
@@ -6,8 +5,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from report.models import Laporan
-from report.serializers import LaporanSerializer
-from django.contrib.auth.models import User
 from notes.models import Notes
 
 class LaporanManager(APIView):

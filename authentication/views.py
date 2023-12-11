@@ -27,14 +27,8 @@ class LoginView(APIView):
             data = xmltodict.parse(rawdata)
             data = data.get('cas:serviceResponse').get('cas:authenticationSuccess')
 
-            print(data)
             if(not data):
-                return Response(
-                    {
-                        "error": "Invalid Ticket"
-                    }, 
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+                return HttpResponseRedirect("/")
             
             user, created = User.objects.get_or_create(
                 username=data.get('cas:user'), 
