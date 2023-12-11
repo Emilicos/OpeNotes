@@ -60,7 +60,7 @@ class LaporanValid(APIView):
 
         laporan.terlapor.delete()
 
-        return render(request, "report_list.html", {"laporan": laporan})
+        return redirect("report_list")
 
 class LaporanInvalid(APIView):
     permission_classes = []
