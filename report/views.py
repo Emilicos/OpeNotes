@@ -11,7 +11,7 @@ class LaporanManager(APIView):
     permission_classes = []
     def get(self, request):
         self.permission_classes = [IsAdminUser]
-        if(request.user.is_anonymous):
+        if(request.user.is_staff == False):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         
         laporan_not_reviewed = Laporan.objects.filter(reviewed=False)
@@ -32,7 +32,7 @@ class LaporanDetailView(APIView):
     permission_classes = []
     def get(self, request, id):
         self.permission_classes = [IsAdminUser]
-        if(request.user.is_anonymous):
+        if(request.user.is_staff == False):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         
         laporan = Laporan.objects.get(id=id)
@@ -51,7 +51,7 @@ class LaporanValid(APIView):
     permission_classes = []
     def get(self, request, id):
         self.permission_classes = [IsAdminUser]
-        if(request.user.is_anonymous):
+        if(request.user.is_staff == False):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
         laporan = Laporan.objects.get(id=id)
@@ -66,7 +66,7 @@ class LaporanInvalid(APIView):
     permission_classes = []
     def get(self, request, id):
         self.permission_classes = [IsAdminUser]
-        if(request.user.is_anonymous):
+        if(request.user.is_staff == False):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
         laporan = Laporan.objects.get(id=id)
