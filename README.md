@@ -2,6 +2,8 @@
 
 OpeNotes merupakan situs jejaring sosial berbasis edukasi yang ditujukan bagi mahasiswa Fasilkom UI di mana pengguna dapat membagikan posting singkat yang pada aplikasi ini dikenal sebagai ”<b>Notes</b>”. Notes dapat digunakan oleh mahasiswa untuk membagikan catatan/sumber pembelajaran, pengalaman belajar, <i> tips & tricks </i>, serta hal-hal lainnya seputar perkuliahan. Notes dapat mengandung gabungan dari teks dan foto.
 
+Aplikasi OpeNotes dapat diakses melalui https://openotes.net/
+
 ## Role
 1. Mahasiswa: sebuah role dari aplikasi OpeNotes yang didapatkan setelah diverifikasi identitas mahasiswanya (melalui SSO UI Auth Service). Hal yang menjadi garis besar dari adanya role mahasiswa adalah sebagai role utama pada website ini dengan aksesibilitas pada fitur membuat Notes, reply Notes, dll. Mahasiswa juga dapat membantu tugas admin untuk menjaga keamanan dan ketertiban website dengan bisa me-report Notes jika dirasa melanggar peraturan. 
 <br> <br> Beberapa fitur yang dapat dimiliki oleh Mahasiswa: Logout, Post Notes, Save to Favorites, Reply Notes, Vote Notes, Manage Favorite, Report Notes. 
