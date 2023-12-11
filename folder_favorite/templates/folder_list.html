@@ -184,13 +184,17 @@
             fetch(`/favorite/`, {
                 method: "POST",
                 body: new FormData(document.querySelector('#createModal'))
-            }).then(async () => {
-                await refreshFolderFavorites()
-                callToast("Success", "Berhasil membuat folder favorite")
-                hideModal("createModal")
+            }).then(async (res) => {
+                if (res.ok) {
+                    await refreshFolderFavorites()
+                    callToast("Success", "Berhasil membuat folder favorite")
+                    hideModal("createModal")
+                } else {
+                    hideModal("createModal")
+                    callToast("Error", "Gagal membuat folder favorite")
+                }
             }).catch((error) => {
                 console.log(error)
-                callToast("Error", "Gagal membuat folder favorite")
             })
             
             return false
@@ -203,13 +207,17 @@
                 method: "PUT",
                 headers: { "X-CSRFToken": getCookie("csrftoken") },
                 body: new FormData(document.querySelector(`#updateModal-${id}`))
-            }).then(async () => {
-                await refreshFolderFavorites()
-                callToast("Success", "Berhasil mengubah folder favorite")
-                hideModal(`updateModal-${id}`)
+            }).then(async (res) => {
+                if (res.ok) {
+                    await refreshFolderFavorites()
+                    callToast("Success", "Berhasil mengubah folder favorite")
+                    hideModal(`updateModal-${id}`)
+                } else {
+                    hideModal(`updateModal-${id}`)
+                    callToast("Error", "Gagal mengubah folder favorite")
+                }
             }).catch((error) => {
                 console.log(error)
-                callToast("Error", "Gagal mengubah folder favorite")
             })
         }
 
