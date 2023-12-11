@@ -30,6 +30,9 @@ class CourseListView(APIView):
     
     def post(self, request):
         self.permission_classes = [IsAdminUser]
+        if(request.user.is_anonymous or not request.user.is_staff):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        
         serializer = CourseSerializer(data=request.data)
         if serializer.is_valid():
             course = serializer.save()
@@ -79,6 +82,9 @@ class CourseDetailView(APIView):
         return render(request, "detail.html", context)
     
     def put(self, request, id, format=None):
+        if(request.user.is_anonymous or not request.user.is_staff):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        
         self.permission_classes = [IsAdminUser]
         course = self.get_object(id)
         serializer = CourseSerializer(course, data=request.data)
@@ -97,6 +103,9 @@ class CourseDetailView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, id, format=None):
+        if(request.user.is_anonymous or not request.user.is_staff):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        
         self.permission_classes = [IsAdminUser]
         course = self.get_object(id)
         course.delete()
