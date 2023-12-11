@@ -60,7 +60,7 @@ class CourseDetailView(APIView):
         course = self.get_object(id)
         serializer = CourseSerializer(course)
         
-        course_notes = Notes.objects.filter(course=course)
+        course_notes = Notes.objects.filter(course=course, parent = None)
         notes_list = course_notes.order_by('-created_on')
         
         for notes in notes_list:
