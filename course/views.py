@@ -30,11 +30,11 @@ class CourseListView(APIView):
     
     def post(self, request):
         self.permission_classes = [IsAdminUser]
-        if(request.user.is_anonymous or not request.user.is_staff):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
         
         serializer = CourseSerializer(data=request.data)
         if serializer.is_valid():
+            if(request.user.is_anonymous or not request.user.is_staff):
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
             course = serializer.save()
             prerequisites = request.data.getlist('prerequisites')
             for prerequisite in prerequisites:
@@ -82,13 +82,12 @@ class CourseDetailView(APIView):
         return render(request, "detail.html", context)
     
     def put(self, request, id, format=None):
-        if(request.user.is_anonymous or not request.user.is_staff):
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
-        
         self.permission_classes = [IsAdminUser]
         course = self.get_object(id)
         serializer = CourseSerializer(course, data=request.data)
         if serializer.is_valid():
+            if(request.user.is_anonymous or not request.user.is_staff):
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
             serializer.save()
             prerequisites_data = []
             prerequisites = request.data.getlist('prerequisites')
