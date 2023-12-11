@@ -29,7 +29,7 @@
   <figure class="col-xl-9 col-sm-12 relative flex flex-col bg-slate-50 rounded-lg p-6 dark:bg-slate-800 dark:highlight-white/5 font-bold">
         <div class="w-full text-right flex justify-end">
             {% if request.user.is_authenticated %}
-                <button type="button" class="bg-yellow-500 flex shadow text-white rounded-md text-sm border-y border-transparent py-2 px-3 mr-2 font-bold hover:bg-blue-600 dark:hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-300 dark:focus:ring-offset-slate-900 dark:focus:ring-blue-700" data-bs-toggle="modal" data-bs-target="#saveFavoriteModal">Save to Favorites</button>
+                <button type="button" class="bg-yellow-500 flex shadow text-white rounded-md text-sm border-y border-transparent py-2 px-3 mr-2 font-bold hover:bg-yellow-600 dark:hover:bg-yellow-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-300 dark:focus:ring-offset-slate-900 dark:focus:ring-yellow-700" data-bs-toggle="modal" data-bs-target="#saveFavoriteModal">Save to Favorites</button>
             {% endif %}
             
             {% if request.user.is_authenticated %}
@@ -69,7 +69,7 @@
                   </button>
                   <span class="text-2xl font-bold">{{notes.score}}</span>
                   <button class="p-2 border rounded-full bg-red-600 hover:bg-red-500 dark:hover:bg-red-400" onclick="deleteVote('{{notes.pk}}')">
-                      👎
+                    👎
                   </button>
               </div>
               {% elif notes.vote_status == 0 %}
@@ -84,9 +84,9 @@
               </div>
               {% elif notes.vote_status == 1 %}
               <div class="flex items-center space-x-4">
-                  <button class="p-2 border rounded-full bg-green-600 hover:bg-green-500 dark:hover:bg-green-400" onclick="deleteVote('{{notes.pk}}')">
-                      👍
-                  </button>
+                    <button class="p-2 border rounded-full bg-green-600 hover:bg-green-500 dark:hover:bg-green-400" onclick="deleteVote('{{notes.pk}}')">
+                        👍
+                    </button>
                   <span class="text-2xl font-bold">{{notes.score}}</span>
                   <button class="p-2 border rounded-full bg-red-800 hover:bg-red-600 dark:hover:bg-red-400" onclick="updateVote('{{notes.pk}}')">
                       👎
@@ -134,7 +134,7 @@
                       </button>
                       <span class="text-2xl font-bold">{{child.score}}</span>
                       <button class="p-2 border rounded-full bg-red-600 hover:bg-red-500 dark:hover:bg-red-400" onclick="deleteVote('{{child.pk}}')">
-                          👎
+                        👎
                       </button>
                   </div>
                   {% elif child.vote_status == 0 %}
@@ -150,9 +150,10 @@
                   {% elif child.vote_status == 1 %}
                   <div class="flex items-center space-x-4">
                       <button class="p-2 border rounded-full bg-green-600 hover:bg-green-500 dark:hover:bg-green-400" onclick="deleteVote('{{child.pk}}')">
-                          👍
+                        👍
                       </button>
                       <span class="text-2xl font-bold">{{child.score}}</span>
+                      
                       <button class="p-2 border rounded-full bg-red-800 hover:bg-red-600 dark:hover:bg-red-400" onclick="updateVote('{{child.pk}}')">
                           👎
                       </button>
@@ -326,13 +327,15 @@
 
     function deleteNotes() {
         formData = new FormData(document.querySelector('#deleteModal'))
-        fetch(`/notes/${formData.get('notes_id')}`, {
+        fetch(`/course/notes/{{id_course}}/${formData.get('notes_id')}`, {
             method: "DELETE",
             headers: { "X-CSRFToken": getCookie("csrftoken") },
         }).then(res => {
           if(res.ok == true){
             callToast("Success", "Berhasil menghapus Notes")
-            location.reload()
+            setTimeout(function() {
+            window.location.href =  "/course/{{id_course}}"
+            }, 1000);
           }
           else{
             callToast("Error", "Sistem gagal menghapus Notes")
